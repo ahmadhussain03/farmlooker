@@ -47,6 +47,9 @@
                         Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
                     </div>
                 </div>
+                <div class="flex justify-center mt-4 sm:items-center sm:justify-between items-center">
+                    <a href="https://www.payfast.co.za/eng/process?cmd=_paynow&amp;receiver=14373688&amp;item_name=My+Service&amp;amount=100.00&amp;return_url=http%3A%2F%2Ffarmlooker.test%2Fsuccess&amp;cancel_url=http%3A%2F%2Ffarmlooker.test%2Fcancel&amp;cycles=0&amp;frequency=3&amp;m_payment_id=pay_now_14373688&amp;subscription_type=1"><img src="https://www.payfast.co.za/images/buttons/light-small-subscribe.png" width="210" height="36" alt="Subscribe" title="Subscribe Now with PayFast" /></a>
+                </div>
             </div>
         </div>
     </body>
