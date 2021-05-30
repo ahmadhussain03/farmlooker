@@ -11,8 +11,18 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\RegisterRequest;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Class AuthController
+ * @package App\Http\Controllers\Api
+ */
 class AuthController extends Controller
 {
+    /**
+     * User Register Request
+     *
+     * @param RegisterRequest $request
+     * @return JsonResponse
+     */
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create([
@@ -27,6 +37,13 @@ class AuthController extends Controller
         return response()->json($user);
     }
 
+    /**
+     * User Login Request
+     *
+     * @param LoginRequest $request
+     * @return JsonResponse
+     * @throws ValidationException
+     */
     public function login(LoginRequest $request): JsonResponse
     {
         $user = User::where('email', $request->email)->first();
@@ -39,5 +56,15 @@ class AuthController extends Controller
         $token = $user->createToken($request->device_name)->plainTextToken;
 
         return response()->json(["user" => $user, "token" => $token]);
+    }
+
+    /**
+     * Authenticated User Detail
+     *
+     * @return JsonResponse
+     */
+    public function user(): JsonResponse
+    {
+        return response()->json(auth()->user());
     }
 }

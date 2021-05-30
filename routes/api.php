@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AnimalController;
+use App\Http\Controllers\Api\SummaryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +20,13 @@ use App\Http\Controllers\Api\AuthController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['middleware' => 'auth:api'], function(){
+    //  User Detail Routes
+   Route::get('/user', [AuthController::class, 'user']);
+
+    // Animal Routes
+    Route::apiResource('animal', AnimalController::class);
+
+    // Summary Routes
+    Route::get('/summary', [SummaryController::class, 'index']);
 });
