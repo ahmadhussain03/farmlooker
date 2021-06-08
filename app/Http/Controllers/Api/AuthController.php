@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\RegisterRequest;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class AuthController
@@ -23,18 +24,45 @@ class AuthController extends Controller
      * @param RegisterRequest $request
      * @return JsonResponse
      */
-    public function register(RegisterRequest $request): JsonResponse
+    public function register(Request $request): JsonResponse
     {
-        $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'phone_no' => $request->phone_no,
-            'email' => $request->email,
-            'experience' => $request->experience,
-            'password' => Hash::make($request->password)
-        ]);
+       try {
+           $this->validate($request, [
+               "email" => "required|email|max:255|unique:users",
+               "password" => "required|confirmed|min:6|max:255",
+               "first_name" => "required|string|max:255",
+               "last_name" => "required|string|max:255",
+               "phone_no" => "required|string|phone:AUTO,SA|max:20",
+               "experience" => "required|string",
+           ]);
 
-        return response()->json($user);
+           $user = User::create([
+               'first_name' => $request->first_name,
+               'last_name' => $request->last_name,
+               'phone_no' => $request->phone_no,
+               'email' => $request->email,
+               'experience' => $request->experience,
+               'password' => Hash::make($request->password)
+           ]);
+
+           return response()->json([
+               'code' => 200,
+               'message' => 'User Register Successfully',
+               'data' => $user
+           ], Response::HTTP_OK);
+       } catch (ValidationException $exception){
+           return response()->json([
+               'code' => 422,
+               'message' => $exception->getMessage(),
+               'data' => $exception->errors()
+           ], Response::HTTP_UNPROCESSABLE_ENTITY);
+       } catch(\Exception $exception){
+           return response()->json([
+               'code' => 500,
+               'message' => $exception->getMessage(),
+               'data' => null
+           ], Response::HTTP_INTERNAL_SERVER_ERROR);
+       }
     }
 
     /**
@@ -42,20 +70,37 @@ class AuthController extends Controller
      *
      * @param LoginRequest $request
      * @return JsonResponse
-     * @throws ValidationException
      */
-    public function login(LoginRequest $request): JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        $user = User::where('email', $request->email)->first();
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+        try {
+            $user = User::where('email', $request->email)->first();
+            if (! $user || ! Hash::check($request->password, $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials are incorrect.'],
+                ]);
+            }
+
+            $token = $user->createToken($request->device_name)->plainTextToken;
+
+            return response()->json([
+                'code' => 200,
+                'message' => null,
+                'data' => ["user" => $user, "token" => $token]
+            ], Response::HTTP_OK);
+        } catch (ValidationException $exception){
+            return response()->json([
+                'code' => 422,
+                'message' => $exception->getMessage(),
+                'data' => $exception->errors()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        $token = $user->createToken($request->device_name)->plainTextToken;
-
-        return response()->json(["user" => $user, "token" => $token]);
     }
 
     /**
@@ -65,6 +110,10 @@ class AuthController extends Controller
      */
     public function user(): JsonResponse
     {
-        return response()->json(auth()->user());
+        return response()->json([
+            'code' => 200,
+            'message' => null,
+            'data' => auth()->user()
+        ], Response::HTTP_OK);
     }
 }

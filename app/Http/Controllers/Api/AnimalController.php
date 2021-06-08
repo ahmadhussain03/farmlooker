@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\UpdateAnimalRequest;
 use App\Models\Animal;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateAnimalRequest;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class AnimalController
@@ -23,61 +26,186 @@ class AnimalController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $animalQuery = Animal::query();
+        try {
+            $animalQuery = Animal::query();
 
-        $perPage = $request->has('limit') ? intval($request->limit) : 10;
+            $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-        $animals = $animalQuery->paginate($perPage);
+            $animals = $animalQuery->paginate($perPage);
 
-        return response()->json($animals);
+            return response()->json([
+                'code' => 200,
+                'message' => null,
+                'data' => $animals
+            ]);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Get specific Animal from ID
      *
-     * @param Animal $animal
+     * @param $animal
      * @return JsonResponse
      */
-    public function show(Animal $animal): JsonResponse
+    public function show($animal): JsonResponse
     {
-        return response()->json($animal);
+        try {
+            $animal = Animal::findOrFail($animal);
+
+            return response()->json([
+                'code' => 200,
+                'message' => null,
+                'data' => $animal
+            ], Response::HTTP_OK);
+        } catch (ModelNotFoundException $exception){
+            return response()->json([
+                'code' => 404,
+                'message' => 'Animal Not Found.',
+                'data' => null
+            ], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Create a New Animal
      *
-     * @param CreateAnimalRequest $request
+     * @param Request $request
      * @return JsonResponse
      */
-    public function store(CreateAnimalRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $animal = Animal::create(array_merge($request->all(), ["user_id" => auth()->id()]));
-        return response()->json($animal);
+        try {
+            $this->validate($request, [
+                'animal_id' => 'required',
+                'type' => 'required|string|max:255',
+                'breed' => 'required|string|max:255',
+                'add_as' => 'required|in:purchased,calved',
+                'male_breeder_id' => 'nullable|string|max:255',
+                'female_breeder_id' => 'nullable|string|max:255',
+                'sex' => 'required|in:male,female',
+                'dob' => 'required',
+                'purchase_date' => 'nullable|date',
+                'location' => 'required',
+                'disease' => 'required|in:healthy,sick',
+                'price' => 'nullable|float',
+            ]);
+
+            $animal = Animal::create(array_merge($request->all(), ["user_id" => auth()->id()]));
+            return response()->json([
+                'code' => 200,
+                'message' => 'Animal Created Successfully',
+                'data' => $animal
+            ]);
+        } catch (ValidationException $exception){
+            return response()->json([
+                'code' => 422,
+                'message' => $exception->getMessage(),
+                'data' => $exception->errors()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Update Existing Animal with ID
      *
-     * @param UpdateAnimalRequest $request
-     * @param Animal $animal
+     * @param Request $request
+     * @param $animal
      * @return JsonResponse
      */
-    public function update(UpdateAnimalRequest $request, Animal $animal): JsonResponse
+    public function update(Request $request, $animal): JsonResponse
     {
-        $animal->update($request->all());
-        return response()->json($animal);
+        try {
+            $animal = Animal::findOrFail($animal);
+
+            $this->validate($request, [
+                'animal_id' => 'nullable',
+                'type' => 'nullable|string|max:255',
+                'breed' => 'nullable|string|max:255',
+                'add_as' => 'nullable|in:purchased,calved',
+                'male_breeder_id' => 'nullable|string|max:255',
+                'female_breeder_id' => 'nullable|string|max:255',
+                'sex' => 'nullable|in:male,female',
+                'dob' => 'nullable',
+                'purchase_date' => 'nullable|date',
+                'location' => 'nullable',
+                'disease' => 'nullable|in:healthy,sick',
+                'price' => 'nullable|float',
+            ]);
+
+            $animal->update($request->all());
+            return response()->json([
+                'code' => 200,
+                'message' => 'Animal Updated Successfully',
+                'data' => $animal
+            ]);
+        } catch (ModelNotFoundException $exception){
+            return response()->json([
+                'code' => 404,
+                'message' => 'Animal Not Found.',
+                'data' => null
+            ], Response::HTTP_NOT_FOUND);
+        } catch (ValidationException $exception){
+            return response()->json([
+                'code' => 422,
+                'message' => $exception->getMessage(),
+                'data' => $exception->errors()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
      * Delete Animal using ID
      *
-     * @param Animal $animal
+     * @param $animal
      * @return JsonResponse
      */
-    public function destroy(Animal $animal): JsonResponse
+    public function destroy($animal): JsonResponse
     {
-        $animal->delete();
+        try {
+            $animal = Animal::findOrFail($animal);
+            $animal->delete();
 
-        return response()->json(["message" => "Animal Deleted Successfully!"]);
+            return response()->json([
+                "code" => 200,
+                "message" => "Animal Deleted Successfully!",
+                "data" => null
+            ]);
+        } catch (ModelNotFoundException $exception){
+            return response()->json([
+                'code' => 404,
+                'message' => 'Animal Not Found.',
+                'data' => null
+            ], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
