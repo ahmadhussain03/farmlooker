@@ -38,4 +38,34 @@ class SummaryController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function show(Request $request, $type)
+    {
+        try {
+
+            $animalSexDetail = Animal::select(['sex', DB::raw('COUNT(sex) as count')])->where('type', $type)->groupBy('sex')->get();
+            $animalHealthDetail = Animal::select(['disease', DB::raw('COUNT(disease) as count')])->where('type', $type)->groupBy('disease')->get();
+
+            $perPage = $request->has('limit') ? intval($request->limit) : 10;
+
+            $animals = Animal::where('type', $type)->paginate($perPage);
+
+            return response()->json([
+                'code' => 200,
+                'message' => null,
+                'data' => [
+                    'gender' => $animalSexDetail,
+                    'disease' => $animalHealthDetail,
+                    'animals' => $animals
+                ]
+            ], Response::HTTP_OK);
+
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

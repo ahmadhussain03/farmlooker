@@ -29,4 +29,5 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     // Summary Routes
     Route::get('/summary', [SummaryController::class, 'index']);
+    Route::get('/summary/{type}', [SummaryController::class, 'show']);
 });
