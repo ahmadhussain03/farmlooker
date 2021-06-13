@@ -5,6 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnimalController;
 use App\Http\Controllers\Api\SummaryController;
+use App\Http\Controllers\Api\OrderFeedController;
+use App\Http\Controllers\Api\DiseaseAlertController;
+use App\Http\Controllers\Api\RentalEquipmentController;
+use App\Http\Controllers\Api\TradingAnimalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +30,18 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     // Animal Routes
     Route::apiResource('animal', AnimalController::class);
+
+    // Order Feed Routes
+    Route::apiResource('order_feed', OrderFeedController::class);
+
+    // Rental Equipment Routes
+    Route::apiResource('rental_equipment', RentalEquipmentController::class);
+
+     // Animal Trading Routes
+     Route::apiResource('trading_animal', TradingAnimalController::class);
+
+    // Disease Alert Routes
+    Route::resource('disease_alert', DiseaseAlertController::class)->only(['index', 'store', 'show', 'destroy']);
 
     // Summary Routes
     Route::get('/summary', [SummaryController::class, 'index']);
