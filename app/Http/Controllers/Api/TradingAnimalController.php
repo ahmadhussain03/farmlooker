@@ -19,7 +19,7 @@ class TradingAnimalController extends Controller
     public function index(Request $request)
     {
         try {
-            $tradingAnimalQuery = TradingAnimal::query();
+            $tradingAnimalQuery = TradingAnimal::query()->where('user_id', auth()->id());
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 

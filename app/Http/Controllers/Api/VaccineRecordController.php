@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Animal;
 use Illuminate\Http\Request;
-use App\Models\RentalEquipment;
+use App\Models\VaccineRecord;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class RentalEquipmentController extends Controller
+class VaccineRecordController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,16 +20,16 @@ class RentalEquipmentController extends Controller
     public function index(Request $request)
     {
         try {
-            $rentalEquipmentQuery = RentalEquipment::query()->where('user_id', auth()->id());
+            $vaccineRecordQuery = VaccineRecord::query()->where('user_id', auth()->id());
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $rentalEquipments = $rentalEquipmentQuery->paginate($perPage);
+            $vaccineRecords = $vaccineRecordQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $rentalEquipments
+                'data' => $vaccineRecords
             ]);
         } catch (\Exception $exception){
             return response()->json([
@@ -49,33 +50,22 @@ class RentalEquipmentController extends Controller
     {
         try {
             $this->validate($request, [
-                'name' => 'required|string|max:255|min:2',
-                "model" => "required|string|max:255",
-                'rent' => 'required|numeric',
-                'location' => 'required|string',
-                'dated' => 'required|date',
-                'image' => 'required|mimes:jpeg,jpg,png,bmp'
+                'animal_id' => 'required|numeric',
+                'name' => 'required|string|max:255',
+                'reason' => 'required|string',
+                'date' => 'required|date'
             ]);
 
-            $imageName = time() . $request->image->getClientOriginalName();
-            if($request->image->move('images/rental_equipment/', $imageName)){
-                $rentalEquipment = RentalEquipment::create(array_merge($request->all(), [
-                    'user_id' => auth()->id(),
-                    'image' => 'images/rental_equipment/' . $imageName
-                ]));
+            Animal::findOrFail($request->animal_id);
+            $vaccineRecord = VaccineRecord::create(array_merge($request->all(), [
+                'user_id' => auth()->id()
+            ]));
 
-                return response()->json([
-                    'code' => 200,
-                    'message' => 'Rental Equipment Created Successfully',
-                    'data' => $rentalEquipment
-                ]);
-            } else {
-                return response()->json([
-                    'code' => 500,
-                    'message' => 'Error Uploading Image.',
-                    'data' => null
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
+            return response()->json([
+                'code' => 200,
+                'message' => 'Vaccine Record Created Successfully',
+                'data' => $vaccineRecord
+            ]);
         } catch (ValidationException $exception){
             return response()->json([
                 'code' => 422,
@@ -97,20 +87,20 @@ class RentalEquipmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($rental_equipment)
+    public function show($vaccine_record)
     {
         try {
-            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
+            $vaccineRecord = VaccineRecord::findOrFail($vaccine_record);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $rentalEquipment
+                'data' => $vaccineRecord
             ], Response::HTTP_OK);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Rental Equipment Not Found.',
+                'message' => 'Vaccine Record Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){
@@ -129,48 +119,33 @@ class RentalEquipmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $rental_equipment)
+    public function update(Request $request, $vaccine_record)
     {
         try {
-            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
+
+            $vaccineRecord = VaccineRecord::findOrFail($vaccine_record);
 
             $this->validate($request, [
-                'name' => 'nullable|string|max:255|min:2',
-                "model" => "nullable|string|max:255",
-                'rent' => 'nullable|numeric',
-                'location' => 'nullable|string',
-                'dated' => 'nullable|date',
-                'image' => 'sometimes|mimes:jpeg,jpg,png,bmp'
+                'animal_id' => 'nullable|numeric',
+                'name' => 'nullable|string|max:255',
+                'reason' => 'nullable|string',
+                'date' => 'nullable|date'
             ]);
 
-            $image = $rentalEquipment->image;
+            if($request->has('animal_id'))
+                Animal::findOrFail($request->animal_id);
 
-            if($request->image){
-                unlink($rentalEquipment->getRawOriginal('image'));
-
-                $imageName = time() . $request->image->getClientOriginalName();
-                if($request->image->move('images/rental_equipment/', $imageName)){
-                    $image = 'images/rental_equipment/' . $imageName;
-                } else {
-                    return response()->json([
-                        'code' => 500,
-                        'message' => 'Error Uploading Image.',
-                        'data' => null
-                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
-                }
-            }
-
-            $rentalEquipment->update(array_merge($request->all(), ['image' => $image]));
+            $vaccineRecord->update($request->all());
 
             return response()->json([
                 'code' => 200,
-                'message' => 'Rental Equipment Updated Successfully',
-                'data' => $rentalEquipment
+                'message' => 'Vaccine Record Updated Successfully',
+                'data' => $vaccineRecord
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Rental Equipment Not Found.',
+                'message' => 'Vaccine Record Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (ValidationException $exception){
@@ -179,6 +154,12 @@ class RentalEquipmentController extends Controller
                 'message' => $exception->getMessage(),
                 'data' => $exception->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -188,26 +169,22 @@ class RentalEquipmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($rental_equipment)
+    public function destroy($vaccine_record)
     {
         try {
-            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
+            $vaccineRecord = VaccineRecord::findOrFail($vaccine_record);
 
-            if(file_exists($rentalEquipment->getRawOriginal('image'))){
-                unlink($rentalEquipment->getRawOriginal('image'));
-            }
-
-            $rentalEquipment->delete();
+            $vaccineRecord->delete();
 
             return response()->json([
                 "code" => 200,
-                "message" => "Rental Equipment Deleted Successfully!",
+                "message" => "Vaccine Record Deleted Successfully!",
                 "data" => null
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Rental Equipment Not Found.',
+                'message' => 'Vaccine Record Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Asset;
 use Illuminate\Http\Request;
-use App\Models\RentalEquipment;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class RentalEquipmentController extends Controller
+class AssetController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,16 +19,16 @@ class RentalEquipmentController extends Controller
     public function index(Request $request)
     {
         try {
-            $rentalEquipmentQuery = RentalEquipment::query()->where('user_id', auth()->id());
+            $assetQuery = Asset::query()->where('user_id', auth()->id());
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $rentalEquipments = $rentalEquipmentQuery->paginate($perPage);
+            $assets = $assetQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $rentalEquipments
+                'data' => $assets
             ]);
         } catch (\Exception $exception){
             return response()->json([
@@ -48,34 +48,22 @@ class RentalEquipmentController extends Controller
     public function store(Request $request)
     {
         try {
+
             $this->validate($request, [
-                'name' => 'required|string|max:255|min:2',
-                "model" => "required|string|max:255",
-                'rent' => 'required|numeric',
-                'location' => 'required|string',
-                'dated' => 'required|date',
-                'image' => 'required|mimes:jpeg,jpg,png,bmp'
+                'type' => 'required|string|max:255',
+                'price' => 'required|numeric',
+                'purchase_date' => 'required|date'
             ]);
 
-            $imageName = time() . $request->image->getClientOriginalName();
-            if($request->image->move('images/rental_equipment/', $imageName)){
-                $rentalEquipment = RentalEquipment::create(array_merge($request->all(), [
-                    'user_id' => auth()->id(),
-                    'image' => 'images/rental_equipment/' . $imageName
-                ]));
+            $asset = Asset::create(array_merge($request->all(), [
+                'user_id' => auth()->id()
+            ]));
 
-                return response()->json([
-                    'code' => 200,
-                    'message' => 'Rental Equipment Created Successfully',
-                    'data' => $rentalEquipment
-                ]);
-            } else {
-                return response()->json([
-                    'code' => 500,
-                    'message' => 'Error Uploading Image.',
-                    'data' => null
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
+            return response()->json([
+                'code' => 200,
+                'message' => 'Asset Created Successfully',
+                'data' => $asset
+            ]);
         } catch (ValidationException $exception){
             return response()->json([
                 'code' => 422,
@@ -97,20 +85,20 @@ class RentalEquipmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($rental_equipment)
+    public function show($asset)
     {
         try {
-            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
+            $asset = Asset::findOrFail($asset);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $rentalEquipment
+                'data' => $asset
             ], Response::HTTP_OK);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Rental Equipment Not Found.',
+                'message' => 'Asset Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){
@@ -129,48 +117,29 @@ class RentalEquipmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $rental_equipment)
+    public function update(Request $request, $asset)
     {
         try {
-            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
+
+            $asset = Asset::findOrFail($asset);
 
             $this->validate($request, [
-                'name' => 'nullable|string|max:255|min:2',
-                "model" => "nullable|string|max:255",
-                'rent' => 'nullable|numeric',
-                'location' => 'nullable|string',
-                'dated' => 'nullable|date',
-                'image' => 'sometimes|mimes:jpeg,jpg,png,bmp'
+                'type' => 'nullable|string|max:255',
+                'price' => 'nullable|numeric',
+                'purchase_date' => 'nullable|date'
             ]);
 
-            $image = $rentalEquipment->image;
-
-            if($request->image){
-                unlink($rentalEquipment->getRawOriginal('image'));
-
-                $imageName = time() . $request->image->getClientOriginalName();
-                if($request->image->move('images/rental_equipment/', $imageName)){
-                    $image = 'images/rental_equipment/' . $imageName;
-                } else {
-                    return response()->json([
-                        'code' => 500,
-                        'message' => 'Error Uploading Image.',
-                        'data' => null
-                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
-                }
-            }
-
-            $rentalEquipment->update(array_merge($request->all(), ['image' => $image]));
+            $asset->update($request->all());
 
             return response()->json([
                 'code' => 200,
-                'message' => 'Rental Equipment Updated Successfully',
-                'data' => $rentalEquipment
+                'message' => 'Asset Updated Successfully',
+                'data' => $asset
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Rental Equipment Not Found.',
+                'message' => 'Asset Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (ValidationException $exception){
@@ -179,6 +148,12 @@ class RentalEquipmentController extends Controller
                 'message' => $exception->getMessage(),
                 'data' => $exception->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -188,26 +163,22 @@ class RentalEquipmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($rental_equipment)
+    public function destroy($asset)
     {
         try {
-            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
+            $asset = Asset::findOrFail($asset);
 
-            if(file_exists($rentalEquipment->getRawOriginal('image'))){
-                unlink($rentalEquipment->getRawOriginal('image'));
-            }
-
-            $rentalEquipment->delete();
+            $asset->delete();
 
             return response()->json([
                 "code" => 200,
-                "message" => "Rental Equipment Deleted Successfully!",
+                "message" => "Asset Deleted Successfully!",
                 "data" => null
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Rental Equipment Not Found.',
+                'message' => 'Asset Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){
