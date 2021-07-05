@@ -3,15 +3,17 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\AnimalController;
 use App\Http\Controllers\Api\AssetController;
+use App\Http\Controllers\Api\WorkerController;
+use App\Http\Controllers\Api\AnimalController;
 use App\Http\Controllers\Api\SummaryController;
 use App\Http\Controllers\Api\OrderFeedController;
 use App\Http\Controllers\Api\DiseaseAlertController;
-use App\Http\Controllers\Api\RentalEquipmentController;
 use App\Http\Controllers\Api\TradingAnimalController;
 use App\Http\Controllers\Api\VaccineRecordController;
-use App\Http\Controllers\Api\WorkerController;
+use App\Http\Controllers\Api\RentalEquipmentController;
+use App\Http\Controllers\Api\HomeRentalEquipmentController;
+use App\Http\Controllers\Api\HomeTradingAnimalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,4 +60,13 @@ Route::group(['middleware' => 'auth:api'], function(){
     // Summary Routes
     Route::get('/summary', [SummaryController::class, 'index']);
     Route::get('/summary/{type}', [SummaryController::class, 'show']);
+
+    // Home Routes
+    Route::prefix('home')->group(function () {
+        // All Rental Equipment Route
+        Route::get('rental_equipment', [HomeRentalEquipmentController::class, 'index']);
+
+        // All Trading Animal Route
+        Route::get('trading_animal', [HomeTradingAnimalController::class, 'index']);
+    });
 });

@@ -18,7 +18,7 @@ class CreateTradingAnimalsTable extends Migration
 
             $table->string('image');
             $table->string('type');
-            $table->string('price');
+            $table->float('price');
             $table->date('dob');
             $table->text('location');
             $table->date('dated');
