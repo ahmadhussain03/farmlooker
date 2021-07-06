@@ -99,7 +99,7 @@ class AnimalController extends Controller
                 'purchase_date' => 'nullable|date',
                 'location' => 'required',
                 'disease' => 'required|in:healthy,sick',
-                'price' => 'nullable|float',
+                'price' => 'nullable|numeric',
             ]);
 
             $animal = Animal::create(array_merge($request->all(), ["user_id" => auth()->id()]));
@@ -147,7 +147,7 @@ class AnimalController extends Controller
                 'purchase_date' => 'nullable|date',
                 'location' => 'nullable',
                 'disease' => 'nullable|in:healthy,sick',
-                'price' => 'nullable|float',
+                'price' => 'nullable|numeric',
             ]);
 
             $animal->update($request->all());
