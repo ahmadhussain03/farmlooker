@@ -4,16 +4,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AssetController;
-use App\Http\Controllers\Api\WorkerController;
 use App\Http\Controllers\Api\AnimalController;
+use App\Http\Controllers\Api\WorkerController;
+use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\SummaryController;
 use App\Http\Controllers\Api\OrderFeedController;
 use App\Http\Controllers\Api\DiseaseAlertController;
 use App\Http\Controllers\Api\TradingAnimalController;
 use App\Http\Controllers\Api\VaccineRecordController;
 use App\Http\Controllers\Api\RentalEquipmentController;
-use App\Http\Controllers\Api\HomeRentalEquipmentController;
 use App\Http\Controllers\Api\HomeTradingAnimalController;
+use App\Http\Controllers\Api\HomeRentalEquipmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +63,9 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('/summary', [SummaryController::class, 'index']);
     Route::get('/summary/{type}', [SummaryController::class, 'show']);
 
+    // Purchased Animals List
+    Route::get('expense', [ExpenseController::class, 'index']);
+
     // Home Routes
     Route::prefix('home')->group(function () {
         // All Rental Equipment Route
@@ -69,5 +73,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 
         // All Trading Animal Route
         Route::get('trading_animal', [HomeTradingAnimalController::class, 'index']);
+
+        // Total Expense
+        Route::get('expense/total', [ExpenseController::class, 'show']);
     });
 });
