@@ -20,8 +20,6 @@ class CreateAnimalsTable extends Migration
             $table->string('type');
             $table->string('breed');
             $table->enum('add_as', ['purchased', 'calved']);
-            $table->string('male_breeder_id')->nullable();
-            $table->string('female_breeder_id')->nullable();
             $table->string('sex');
             $table->date('dob');
             $table->date('purchase_date')->nullable();
@@ -30,6 +28,8 @@ class CreateAnimalsTable extends Migration
             $table->double('price')->nullable();
             $table->string('previous_owner')->nullable();
 
+            $table->foreignId('male_breeder_id')->nullable()->constrained('animals')->onDelete('CASCADE');
+            $table->foreignId('female_breeder_id')->nullable()->constrained('animals')->onDelete('CASCADE');
             $table->foreignId('user_id')->constrained()->onDelete('CASCADE');
 
             $table->timestamps();

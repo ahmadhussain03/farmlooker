@@ -21,4 +21,24 @@ class Animal extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function maleParent(): BelongsTo
+    {
+        return $this->belongsTo(Animal::class, 'male_breeder_id', 'id');
+    }
+
+    public function maleParentTree(): BelongsTo
+    {
+        return $this->belongsTo(Animal::class, 'male_breeder_id', 'id')->with(['maleParentTree', 'femaleParentTree']);
+    }
+
+    public function femaleParent(): BelongsTo
+    {
+        return $this->belongsTo(Animal::class, 'female_breeder_id', 'id');
+    }
+
+    public function femaleParentTree(): BelongsTo
+    {
+        return $this->belongsTo(Animal::class, 'female_breeder_id', 'id')->with(['maleParentTree', 'femaleParentTree']);
+    }
 }

@@ -35,6 +35,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     // Animal Routes
     Route::apiResource('animal', AnimalController::class);
+    Route::get('animal/{id}/tree', [AnimalController::class, 'tree']);
 
     // Order Feed Routes
     Route::apiResource('order_feed', OrderFeedController::class);

@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\UpdateAnimalRequest;
 use App\Models\Animal;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateAnimalRequest;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Class AnimalController
@@ -38,7 +36,7 @@ class AnimalController extends Controller
                 'message' => null,
                 'data' => $animals
             ]);
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return response()->json([
                 'code' => 500,
                 'message' => $exception->getMessage(),
@@ -63,13 +61,44 @@ class AnimalController extends Controller
                 'message' => null,
                 'data' => $animal
             ], Response::HTTP_OK);
-        } catch (ModelNotFoundException $exception){
+        } catch (ModelNotFoundException $exception) {
             return response()->json([
                 'code' => 404,
                 'message' => 'Animal Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Get Tree Animal from ID
+     *
+     * @param $animal
+     * @return JsonResponse
+     */
+    public function tree($animal): JsonResponse
+    {
+        try {
+            $animal = Animal::with(['femaleParentTree', 'maleParentTree'])->findOrFail($animal);
+
+            return response()->json([
+                'code' => 200,
+                'message' => null,
+                'data' => $animal
+            ], Response::HTTP_OK);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Animal Not Found.',
+                'data' => null
+            ], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $exception) {
             return response()->json([
                 'code' => 500,
                 'message' => $exception->getMessage(),
@@ -92,8 +121,8 @@ class AnimalController extends Controller
                 'type' => 'required|string|max:255',
                 'breed' => 'required|string|max:255',
                 'add_as' => 'required|in:purchased,calved',
-                'male_breeder_id' => 'nullable|string|max:255',
-                'female_breeder_id' => 'nullable|string|max:255',
+                'male_breeder_id' => 'nullable|integer',
+                'female_breeder_id' => 'nullable|integer',
                 'sex' => 'required|in:male,female',
                 'dob' => 'required',
                 'purchase_date' => 'nullable|date',
@@ -108,13 +137,13 @@ class AnimalController extends Controller
                 'message' => 'Animal Created Successfully',
                 'data' => $animal
             ]);
-        } catch (ValidationException $exception){
+        } catch (ValidationException $exception) {
             return response()->json([
                 'code' => 422,
                 'message' => $exception->getMessage(),
                 'data' => $exception->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return response()->json([
                 'code' => 500,
                 'message' => $exception->getMessage(),
@@ -140,8 +169,8 @@ class AnimalController extends Controller
                 'type' => 'nullable|string|max:255',
                 'breed' => 'nullable|string|max:255',
                 'add_as' => 'nullable|in:purchased,calved',
-                'male_breeder_id' => 'nullable|string|max:255',
-                'female_breeder_id' => 'nullable|string|max:255',
+                'male_breeder_id' => 'nullable|integer',
+                'female_breeder_id' => 'nullable|integer',
                 'sex' => 'nullable|in:male,female',
                 'dob' => 'nullable',
                 'purchase_date' => 'nullable|date',
@@ -156,19 +185,19 @@ class AnimalController extends Controller
                 'message' => 'Animal Updated Successfully',
                 'data' => $animal
             ]);
-        } catch (ModelNotFoundException $exception){
+        } catch (ModelNotFoundException $exception) {
             return response()->json([
                 'code' => 404,
                 'message' => 'Animal Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
-        } catch (ValidationException $exception){
+        } catch (ValidationException $exception) {
             return response()->json([
                 'code' => 422,
                 'message' => $exception->getMessage(),
                 'data' => $exception->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return response()->json([
                 'code' => 500,
                 'message' => $exception->getMessage(),
@@ -194,13 +223,13 @@ class AnimalController extends Controller
                 "message" => "Animal Deleted Successfully!",
                 "data" => null
             ]);
-        } catch (ModelNotFoundException $exception){
+        } catch (ModelNotFoundException $exception) {
             return response()->json([
                 'code' => 404,
                 'message' => 'Animal Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return response()->json([
                 'code' => 500,
                 'message' => $exception->getMessage(),

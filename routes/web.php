@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Animal;
 use App\Models\DiseaseAlert;
 use Illuminate\Support\Facades\Route;
 
@@ -16,5 +17,10 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
+
+    $animals = Animal::with(['maleParentTree', 'femaleParentTree'])->find(4);
+
+    dd($animals->toJson(JSON_PRETTY_PRINT));
+
     return view('welcome');
 });
