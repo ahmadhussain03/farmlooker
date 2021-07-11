@@ -25,7 +25,7 @@ class AnimalController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $animalQuery = Animal::query();
+            $animalQuery = Animal::query()->with(['maleParent', 'femaleParent']);
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
@@ -54,7 +54,7 @@ class AnimalController extends Controller
     public function show($animal): JsonResponse
     {
         try {
-            $animal = Animal::findOrFail($animal);
+            $animal = Animal::with(['maleParent', 'femaleParent'])->findOrFail($animal);
 
             return response()->json([
                 'code' => 200,
@@ -132,6 +132,7 @@ class AnimalController extends Controller
             ]);
 
             $animal = Animal::create(array_merge($request->all(), ["user_id" => auth()->id()]));
+            $animal->load(['maleParent', 'femaleParent']);
             return response()->json([
                 'code' => 200,
                 'message' => 'Animal Created Successfully',
@@ -180,6 +181,7 @@ class AnimalController extends Controller
             ]);
 
             $animal->update($request->all());
+            $animal->load(['maleParent', 'femaleParent']);
             return response()->json([
                 'code' => 200,
                 'message' => 'Animal Updated Successfully',

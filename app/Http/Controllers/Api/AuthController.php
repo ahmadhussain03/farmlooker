@@ -65,6 +65,28 @@ class AuthController extends Controller
        }
     }
 
+    public function logout(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $user->currentAccessToken()->delete();
+            $user->device_token = null;
+            $user->save();
+
+            return response()->json([
+                'code' => 200,
+                'message' => null,
+                'data' => null
+            ], Response::HTTP_OK);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * User Login Request
      *
@@ -74,6 +96,14 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         try {
+
+            $this->validate($request, [
+                "email" => "required|email|max:255",
+                "password" => "required|min:6|max:255",
+                "device_token" => "required|string|max:255",
+                "device_name" => "required|string|max:255",
+            ]);
+
             $user = User::where('email', $request->email)->first();
             if (! $user || ! Hash::check($request->password, $user->password)) {
                 throw ValidationException::withMessages([
@@ -82,6 +112,8 @@ class AuthController extends Controller
             }
 
             $token = $user->createToken($request->device_name)->plainTextToken;
+            $user->device_token = $request->device_token;
+            $user->save();
 
             return response()->json([
                 'code' => 200,
