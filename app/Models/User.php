@@ -55,6 +55,11 @@ class User extends Authenticatable
         return $this->device_token;
     }
 
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
     public function animals()
     {
         return $this->hasMany(Animal::class);

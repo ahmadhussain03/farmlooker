@@ -14,7 +14,7 @@ use NotificationChannels\Fcm\Resources\AndroidNotification;
 use NotificationChannels\Fcm\Resources\ApnsConfig;
 use NotificationChannels\Fcm\Resources\ApnsFcmOptions;
 
-class Message extends Notification
+class Message extends Notification implements ShouldQueue
 {
     use Queueable;
 

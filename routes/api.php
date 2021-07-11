@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\VaccineRecordController;
 use App\Http\Controllers\Api\RentalEquipmentController;
 use App\Http\Controllers\Api\HomeTradingAnimalController;
 use App\Http\Controllers\Api\HomeRentalEquipmentController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,9 +32,11 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => 'auth:api'], function(){
-
+    // Logout Route
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    // User Notification Routes
+    Route::get('notifications', [NotificationController::class, 'index']);
 
     //  User Detail Routes
    Route::get('/user', [AuthController::class, 'user']);

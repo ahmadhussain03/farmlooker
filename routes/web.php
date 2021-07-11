@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-use App\Models\User;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,15 +15,19 @@ use App\Models\User;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
 Route::get('/', function () {
-    $user = User::find(2);
-    dd($user->notify(new \App\Notifications\Message('Test Message')));
+    return view('welcome');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+// Route::get('/', function () {
+//     $user = User::find(2);
+//     dd($user->notify(new \App\Notifications\Message('Test Message')));
+// });
+Route::group(['middleware' => 'auth', 'prefix' => 'admin', 'as' => 'admin.'], function(){
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('notification', NotificationController::class)->only(['index', 'store', 'create']);
+});
 
 require __DIR__.'/auth.php';
