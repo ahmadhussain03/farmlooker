@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +20,8 @@ use App\Http\Controllers\DashboardController;
 // });
 
 Route::get('/', function () {
-    return view('welcome');
+    $user = User::find(2);
+    dd($user->notify(new \App\Notifications\Message('Test Message')));
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
