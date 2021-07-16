@@ -25,7 +25,7 @@ class AnimalController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $animalQuery = Animal::query()->with(['maleParent', 'femaleParent']);
+            $animalQuery = Animal::query()->with(['maleParent', 'femaleParent'])->where('user_id', auth()->id());
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
@@ -54,7 +54,7 @@ class AnimalController extends Controller
     public function show($animal): JsonResponse
     {
         try {
-            $animal = Animal::with(['maleParent', 'femaleParent'])->findOrFail($animal);
+            $animal = Animal::with(['maleParent', 'femaleParent'])->where('user_id', auth()->id())->where('id', $animal)->firstOrFail();
 
             return response()->json([
                 'code' => 200,
@@ -85,7 +85,7 @@ class AnimalController extends Controller
     public function tree($animal): JsonResponse
     {
         try {
-            $animal = Animal::with(['femaleParentTree', 'maleParentTree'])->findOrFail($animal);
+            $animal = Animal::with(['femaleParentTree', 'maleParentTree'])->where('user_id', auth()->id())->where('id', $animal)->firstOrFail();
 
             return response()->json([
                 'code' => 200,
@@ -163,7 +163,7 @@ class AnimalController extends Controller
     public function update(Request $request, $animal): JsonResponse
     {
         try {
-            $animal = Animal::findOrFail($animal);
+            $animal = Animal::where('user_id', auth()->id())->where('id', $animal)->firstOrFail();
 
             $this->validate($request, [
                 'animal_id' => 'nullable',
@@ -217,7 +217,7 @@ class AnimalController extends Controller
     public function destroy($animal): JsonResponse
     {
         try {
-            $animal = Animal::findOrFail($animal);
+            $animal = Animal::where('user_id', auth()->id())->where('id', $animal)->firstOrFail();
             $animal->delete();
 
             return response()->json([

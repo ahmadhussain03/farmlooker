@@ -14,7 +14,7 @@ class ExpenseController extends Controller
         try {
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
-            $purchaseAnimals = Animal::where('add_as', 'calved')->where('user_id', auth()->id())->paginate($perPage);
+            $purchaseAnimals = Animal::where('add_as', 'purchased')->where('user_id', auth()->id())->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
@@ -34,7 +34,7 @@ class ExpenseController extends Controller
     {
         try {
 
-            $purchaseTotal = Animal::where('add_as', 'calved')->sum('price');
+            $purchaseTotal = Animal::where('add_as', 'purchased')->sum('price');
 
             return response()->json([
                 'code' => 200,
