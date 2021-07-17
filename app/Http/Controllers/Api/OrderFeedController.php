@@ -20,7 +20,7 @@ class OrderFeedController extends Controller
     public function index(Request $request)
     {
         try {
-            $orderFeedQuery = OrderFeed::query()->with('feedTypes');
+            $orderFeedQuery = OrderFeed::query()->with('feedTypes')->where('user_id', auth()->id());
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
@@ -106,7 +106,7 @@ class OrderFeedController extends Controller
     public function show($order_feed)
     {
         try {
-            $orderFeed = OrderFeed::with('feedTypes')->findOrFail($order_feed);
+            $orderFeed = OrderFeed::with('feedTypes')->where('id', $order_feed)->where('user_id', auth()->id())->firstOrFail();
 
             return response()->json([
                 'code' => 200,
@@ -138,7 +138,7 @@ class OrderFeedController extends Controller
     public function update(Request $request, $order_feed)
     {
         try {
-            $orderFeed = OrderFeed::with('feedTypes')->findOrFail($order_feed);
+            $orderFeed = OrderFeed::with('feedTypes')->where('user_id', auth()->id())->where('id', $order_feed)->firstOrFail();
 
             $this->validate($request, [
                 'name' => 'nullable|string|max:255|min:2',

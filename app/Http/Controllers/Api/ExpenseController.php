@@ -34,7 +34,7 @@ class ExpenseController extends Controller
     {
         try {
 
-            $purchaseTotal = Animal::where('add_as', 'purchased')->sum('price');
+            $purchaseTotal = Animal::where('add_as', 'purchased')->where('user_id', auth()->id())->sum('price');
 
             return response()->json([
                 'code' => 200,

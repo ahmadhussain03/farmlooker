@@ -23,7 +23,7 @@ class SummaryController extends Controller
     public function index(): JsonResponse
     {
         try {
-            $animalSummary = Animal::select(['type', DB::raw('COUNT(type) as count')])->groupBy('type')->get();
+            $animalSummary = Animal::select(['type', DB::raw('COUNT(type) as count')])->where('user_id', auth()->id())->groupBy('type')->get();
 
             return response()->json([
                 'code' => 200,
@@ -43,8 +43,8 @@ class SummaryController extends Controller
     {
         try {
 
-            $animalSexDetail = Animal::select(['sex', DB::raw('COUNT(sex) as count')])->where('type', $type)->groupBy('sex')->get();
-            $animalHealthDetail = Animal::select(['disease', DB::raw('COUNT(disease) as count')])->where('type', $type)->groupBy('disease')->get();
+            $animalSexDetail = Animal::select(['sex', DB::raw('COUNT(sex) as count')])->where('type', $type)->where('user_id', auth()->id())->groupBy('sex')->get();
+            $animalHealthDetail = Animal::select(['disease', DB::raw('COUNT(disease) as count')])->where('type', $type)->where('user_id', auth()->id())->groupBy('disease')->get();
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 

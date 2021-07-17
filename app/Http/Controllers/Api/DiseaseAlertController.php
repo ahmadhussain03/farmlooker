@@ -20,7 +20,7 @@ class DiseaseAlertController extends Controller
     public function index(Request $request)
     {
         try {
-            $diseaseAlertQuery = DiseaseAlert::query()->with('animal');
+            $diseaseAlertQuery = DiseaseAlert::query()->with('animal')->where('user_id', auth()->id());
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
@@ -56,7 +56,7 @@ class DiseaseAlertController extends Controller
                 'symptoms.*' => 'string'
             ]);
 
-            $animal = Animal::find($request->animal_id);
+            $animal = Animal::where('id', $request->animal_id)->where('user_id', auth()->id())->first();
 
             if(!$animal){
                 return response()->json([
