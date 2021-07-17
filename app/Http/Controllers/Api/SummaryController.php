@@ -48,7 +48,7 @@ class SummaryController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $animals = Animal::where('type', $type)->paginate($perPage);
+            $animals = Animal::where('type', $type)->where('user_id', auth()->id())->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
