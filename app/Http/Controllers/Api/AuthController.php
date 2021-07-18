@@ -34,6 +34,8 @@ class AuthController extends Controller
                "last_name" => "required|string|max:255",
                "phone_no" => "required|string|phone:AUTO,SA|max:20",
                "experience" => "required|string",
+               "device_token" => "required|string|max:255",
+               "device_name" => "required|string|max:255"
            ]);
 
            $user = User::create([
@@ -45,10 +47,14 @@ class AuthController extends Controller
                'password' => Hash::make($request->password)
            ]);
 
+            $token = $user->createToken($request->device_name)->plainTextToken;
+            $user->device_token = $request->device_token;
+            $user->save();
+
            return response()->json([
                'code' => 200,
                'message' => 'User Register Successfully',
-               'data' => $user
+               'data' => ["user" => $user, "token" => $token]
            ], Response::HTTP_OK);
        } catch (ValidationException $exception){
            return response()->json([
