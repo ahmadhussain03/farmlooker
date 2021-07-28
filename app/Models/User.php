@@ -64,4 +64,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Animal::class);
     }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(UserSubscription::class, 'user_id', 'id')->where('status', 'SUCCESSFULL');
+    }
 }

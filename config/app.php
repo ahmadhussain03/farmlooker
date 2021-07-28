@@ -166,6 +166,10 @@ return [
          * Package Service Providers...
          */
 
+         /*
+         * Custom Service Providers...
+         */
+        App\Providers\PayfastServiceProvider::class,
         /*
          * Application Service Providers...
          */

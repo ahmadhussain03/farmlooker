@@ -1,6 +1,6 @@
+
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AssetController;
@@ -10,12 +10,13 @@ use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\SummaryController;
 use App\Http\Controllers\Api\OrderFeedController;
 use App\Http\Controllers\Api\DiseaseAlertController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\TradingAnimalController;
 use App\Http\Controllers\Api\VaccineRecordController;
 use App\Http\Controllers\Api\RentalEquipmentController;
 use App\Http\Controllers\Api\HomeTradingAnimalController;
 use App\Http\Controllers\Api\HomeRentalEquipmentController;
-use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\SubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::group(['middleware' => 'auth:api'], function(){
     // Logout Route
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // User Subscriptions Routes
+    Route::get('/subscribe/{id}', [SubscriptionController::class, 'show']);
+    Route::get('subscriptions', [SubscriptionController::class, 'index']);
 
     // User Notification Routes
     Route::get('notifications', [NotificationController::class, 'index']);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2279a493f3a95bf8caa614ddb926b3d4",
+    "content-hash": "ffc21882710fcd0798ca561911776006",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -61,6 +61,48 @@
                 "source": "https://github.com/asm89/stack-cors/tree/v2.0.3"
             },
             "time": "2021-03-11T06:42:03+00:00"
+        },
+        {
+            "name": "billowapp/show-me-the-money",
+            "version": "0.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/billowapp/show-me-the-money.git",
+                "reference": "85ae731682ea7b954567525db657eb32b96610a4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/billowapp/show-me-the-money/zipball/85ae731682ea7b954567525db657eb32b96610a4",
+                "reference": "85ae731682ea7b954567525db657eb32b96610a4",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/inflector": "^1.1|^2.0",
+                "illuminate/support": "^5.2|^6.0|^7.0|^8.0",
+                "php": "^7.0|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Billow\\Utilities\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Warren Hansen",
+                    "email": "warren@billow.co.za"
+                }
+            ],
+            "description": "Super simple money class for laravel and we mean simple.",
+            "support": {
+                "issues": "https://github.com/billowapp/show-me-the-money/issues",
+                "source": "https://github.com/billowapp/show-me-the-money/tree/0.4.2"
+            },
+            "time": "2021-03-31T15:44:26+00:00"
         },
         {
             "name": "brick/math",

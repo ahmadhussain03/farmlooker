@@ -31,7 +31,8 @@ class UsersSeeder extends Seeder
             'password' => bcrypt('admin123'), // password
             'remember_token' => Str::random(10),
             'phone_no' => $faker->phoneNumber(),
-            'experience' => '3 years'
+            'experience' => '3 years',
+            'user_type' => 'administrator'
         ]);
     }
 }

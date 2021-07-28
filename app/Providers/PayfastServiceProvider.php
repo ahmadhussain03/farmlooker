@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
-use App\Classes\Theme\Init;
+use App\Payfast\Contracts\PaymentProcessor;
+use App\Payfast\Payfast;
 use Illuminate\Support\ServiceProvider;
 
-class MetronicServiceProvider extends ServiceProvider
+class PayfastServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -14,7 +15,7 @@ class MetronicServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(PaymentProcessor::class, Payfast::class);
     }
 
     /**
@@ -24,6 +25,6 @@ class MetronicServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Init::run();
+
     }
 }
