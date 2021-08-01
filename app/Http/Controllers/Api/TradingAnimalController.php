@@ -54,7 +54,8 @@ class TradingAnimalController extends Controller
                 'location' => 'required|string',
                 'dated' => 'required|date',
                 'dob' => 'required|date',
-                'image' => 'required|mimes:jpeg,jpg,png,bmp'
+                'image' => 'required|mimes:jpeg,jpg,png,bmp',
+                "phone" => "required|string|phone:AUTO,SA|max:20"
             ]);
 
             $imageName = time() . $request->image->getClientOriginalName();
@@ -140,7 +141,8 @@ class TradingAnimalController extends Controller
                 'location' => 'nullable|string',
                 'dated' => 'nullable|date',
                 'dob' => 'nullable|date',
-                'image' => 'sometimes|mimes:jpeg,jpg,png,bmp'
+                'image' => 'sometimes|mimes:jpeg,jpg,png,bmp',
+                "phone" => "nullable|string|phone:AUTO,SA|max:20"
             ]);
 
             $image = $tradingAnimal->image;

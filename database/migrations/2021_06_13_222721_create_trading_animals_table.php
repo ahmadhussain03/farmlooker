@@ -22,6 +22,8 @@ class CreateTradingAnimalsTable extends Migration
             $table->date('dob');
             $table->text('location');
             $table->date('dated');
+            $table->string('phone');
+
 
             $table->foreignId('user_id')->constrained()->onDelete('CASCADE');
 

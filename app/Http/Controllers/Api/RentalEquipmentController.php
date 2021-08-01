@@ -54,7 +54,8 @@ class RentalEquipmentController extends Controller
                 'rent' => 'required|numeric',
                 'location' => 'required|string',
                 'dated' => 'required|date',
-                'image' => 'required|mimes:jpeg,jpg,png,bmp'
+                'image' => 'required|mimes:jpeg,jpg,png,bmp',
+                "phone" => "required|string|phone:AUTO,SA|max:20"
             ]);
 
             $imageName = time() . $request->image->getClientOriginalName();
@@ -140,7 +141,8 @@ class RentalEquipmentController extends Controller
                 'rent' => 'nullable|numeric',
                 'location' => 'nullable|string',
                 'dated' => 'nullable|date',
-                'image' => 'sometimes|mimes:jpeg,jpg,png,bmp'
+                'image' => 'sometimes|mimes:jpeg,jpg,png,bmp',
+                "phone" => "nullable|string|phone:AUTO,SA|max:20"
             ]);
 
             $image = $rentalEquipment->image;

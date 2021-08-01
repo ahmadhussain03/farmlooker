@@ -22,6 +22,7 @@ class CreateRentalEquipmentTable extends Migration
             $table->float('rent');
             $table->text('location');
             $table->date('dated');
+            $table->string('phone');
 
             $table->foreignId('user_id')->constrained()->onDelete('CASCADE');
 
