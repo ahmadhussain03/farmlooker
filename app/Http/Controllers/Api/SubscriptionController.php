@@ -61,6 +61,10 @@ class SubscriptionController extends Controller
         // Return the payment form.
         $paymentForm = $payfast->paymentForm('Redirecting...');
 
-        return view('payment.index', compact('paymentForm'));
+        return response()->json([
+            'code' => 200,
+            'message' => null,
+            'data' => view('payment.index', compact('paymentForm'))->render()
+        ]);
     }
 }
