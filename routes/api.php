@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\SummaryController;
 use App\Http\Controllers\Api\OrderFeedController;
 use App\Http\Controllers\Api\DiseaseAlertController;
+use App\Http\Controllers\Api\FarmController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\TradingAnimalController;
 use App\Http\Controllers\Api\VaccineRecordController;
@@ -40,11 +41,14 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('/subscribe/{id}', [SubscriptionController::class, 'show']);
     Route::get('subscriptions', [SubscriptionController::class, 'index']);
 
-    // User Notification Routes
-    Route::get('notifications', [NotificationController::class, 'index']);
+    // Farm Routes
+    Route::apiResource('farm', FarmController::class)->except(['show']);
 
     //  User Detail Routes
-   Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/user', [AuthController::class, 'user']);
+
+    // User Notification Routes
+    Route::get('notifications', [NotificationController::class, 'index']);
 
     // Animal Routes
     Route::apiResource('animal', AnimalController::class);

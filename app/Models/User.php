@@ -34,6 +34,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'pivot'
     ];
 
     /**
@@ -68,5 +69,15 @@ class User extends Authenticatable
     public function activeSubscription()
     {
         return $this->hasOne(UserSubscription::class, 'user_id', 'id')->where('status', 'SUCCESSFULL');
+    }
+
+    public function farms()
+    {
+        return $this->belongsToMany(Farm::class);
+    }
+
+    public function farm()
+    {
+        return $this->belongsToMany(Farm::class)->first();
     }
 }

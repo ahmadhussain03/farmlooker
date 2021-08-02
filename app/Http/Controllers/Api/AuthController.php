@@ -150,8 +150,6 @@ class AuthController extends Controller
     {
         $user = User::with('activeSubscription')->findOrFail(auth()->id());
 
-        // $user->load('activeSubscription');
-
         return response()->json([
             'code' => 200,
             'message' => null,
