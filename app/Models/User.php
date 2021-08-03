@@ -112,7 +112,6 @@ class User extends Authenticatable
     public function animals()
     {
         return $this->hasManyDeep(Animal::class, ['farm_user', Farm::class]);
-        // return $this->hasMany(Animal::class);
     }
 
     public function workers()
@@ -123,6 +122,11 @@ class User extends Authenticatable
     public function vaccineRecords()
     {
         return $this->hasManyDeep(VaccineRecord::class, ['farm_user', Farm::class, Animal::class]);
+    }
+
+    public function diseaseAlerts()
+    {
+        return $this->hasManyDeep(DiseaseAlert::class, ['farm_user', Farm::class, Animal::class]);
     }
 
     public function activeSubscription()

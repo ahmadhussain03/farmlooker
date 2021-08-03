@@ -53,7 +53,7 @@ class SummaryController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $animals = $currentUser->animals()->paginate($perPage);
+            $animals = $currentUser->animals()->where('type', $type)->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

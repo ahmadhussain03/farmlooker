@@ -20,7 +20,9 @@ class DiseaseAlertController extends Controller
     public function index(Request $request)
     {
         try {
-            $diseaseAlertQuery = DiseaseAlert::query()->with('animal')->where('user_id', auth()->id());
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $diseaseAlertQuery = $currentUser->diseaseAlerts()->with('animal');
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
@@ -56,7 +58,9 @@ class DiseaseAlertController extends Controller
                 'symptoms.*' => 'string'
             ]);
 
-            $animal = Animal::where('id', $request->animal_id)->where('user_id', auth()->id())->first();
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $animal = $currentUser->animals()->where('animals.id', $request->animal_id)->first();
 
             if(!$animal){
                 return response()->json([
@@ -107,7 +111,9 @@ class DiseaseAlertController extends Controller
     public function show($disease_alert)
     {
         try {
-            $diseaseAlert = DiseaseAlert::with('animal')->findOrFail($disease_alert);
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $diseaseAlert = $currentUser->diseaseAlerts()->with('animal')->findOrFail($disease_alert);
 
             return response()->json([
                 'code' => 200,
@@ -138,7 +144,9 @@ class DiseaseAlertController extends Controller
     public function destroy($disease_alert)
     {
         try {
-            $diseaseAlert = DiseaseAlert::findOrFail($disease_alert);
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $diseaseAlert = $currentUser->diseaseAlerts()->with('animal')->findOrFail($disease_alert);
             $diseaseAlert->delete();
 
             return response()->json([
