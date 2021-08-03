@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Models\Animal;
 use Illuminate\Http\JsonResponse;
@@ -23,7 +23,9 @@ class SummaryController extends Controller
     public function index(): JsonResponse
     {
         try {
-            $animalSummary = Animal::select(['type', DB::raw('COUNT(type) as count')])->where('user_id', auth()->id())->groupBy('type')->get();
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $animalSummary = $currentUser->animals()->select(['animals.type', DB::raw('COUNT(animals.type) as count')])->groupBy(['animals.type', 'farm_user.user_id'])->get();
 
             return response()->json([
                 'code' => 200,
@@ -43,12 +45,15 @@ class SummaryController extends Controller
     {
         try {
 
-            $animalSexDetail = Animal::select(['sex', DB::raw('COUNT(sex) as count')])->where('type', $type)->where('user_id', auth()->id())->groupBy('sex')->get();
-            $animalHealthDetail = Animal::select(['disease', DB::raw('COUNT(disease) as count')])->where('type', $type)->where('user_id', auth()->id())->groupBy('disease')->get();
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+
+            $animalSexDetail = $currentUser->animals()->select(['animals.sex', DB::raw('COUNT(animals.sex) as count')])->where('animals.type', $type)->groupBy(['animals.sex', 'farm_user.user_id'])->get();
+            $animalHealthDetail = $currentUser->animals()->select(['animals.disease', DB::raw('COUNT(animals.disease) as count')])->where('animals.type', $type)->groupBy(['animals.disease', 'farm_user.user_id'])->get();
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $animals = Animal::where('type', $type)->where('user_id', auth()->id())->paginate($perPage);
+            $animals = $currentUser->animals()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

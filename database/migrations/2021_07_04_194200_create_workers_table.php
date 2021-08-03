@@ -24,7 +24,7 @@ class CreateWorkersTable extends Migration
             $table->date('joining_date');
             $table->string('duty');
 
-            $table->foreignId('user_id')->constrained()->onDelete('CASCADE');
+            $table->foreignId('farm_id')->constrained()->onDelete('CASCADE');
 
             $table->timestamps();
         });

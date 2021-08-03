@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Models\Animal;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\Farm;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -25,7 +26,7 @@ class AnimalController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $animalQuery = Animal::query()->with(['maleParent', 'femaleParent'])->where('user_id', auth()->id());
+            $animalQuery = Animal::query()->with(['maleParent', 'femaleParent', 'farm']);
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
@@ -54,7 +55,9 @@ class AnimalController extends Controller
     public function show($animal): JsonResponse
     {
         try {
-            $animal = Animal::with(['maleParent', 'femaleParent'])->where('user_id', auth()->id())->where('id', $animal)->firstOrFail();
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $animal = $currentUser->animals()->with(['farm'])->where('animals.id', $animal)->firstOrFail();
 
             return response()->json([
                 'code' => 200,
@@ -85,8 +88,9 @@ class AnimalController extends Controller
     public function tree($animal): JsonResponse
     {
         try {
-            $animal = Animal::with(['femaleParentTree', 'maleParentTree'])->where('user_id', auth()->id())->where('id', $animal)->firstOrFail();
-
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $animal = $currentUser->animals()->with(['femaleParentTree', 'maleParentTree'])->where('animals.id', $animal)->firstOrFail();
             return response()->json([
                 'code' => 200,
                 'message' => null,
@@ -116,7 +120,7 @@ class AnimalController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $this->validate($request, [
+            $data = $this->validate($request, [
                 'animal_id' => 'required',
                 'type' => 'required|string|max:255',
                 'breed' => 'required|string|max:255',
@@ -129,9 +133,14 @@ class AnimalController extends Controller
                 'location' => 'required',
                 'disease' => 'required|in:healthy,sick',
                 'price' => 'nullable|numeric',
+                'farm_id' => 'required|integer|min:1'
             ]);
 
-            $animal = Animal::create(array_merge($request->all(), ["user_id" => auth()->id()]));
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
+
+            $animal = Animal::create($data);
             $animal->load(['maleParent', 'femaleParent']);
             return response()->json([
                 'code' => 200,
@@ -163,7 +172,9 @@ class AnimalController extends Controller
     public function update(Request $request, $animal): JsonResponse
     {
         try {
-            $animal = Animal::where('user_id', auth()->id())->where('id', $animal)->firstOrFail();
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $animal = $currentUser->animals()->where('animals.id', $animal)->firstOrFail();
 
             $this->validate($request, [
                 'animal_id' => 'nullable',
@@ -179,6 +190,10 @@ class AnimalController extends Controller
                 'disease' => 'nullable|in:healthy,sick',
                 'price' => 'nullable|numeric',
             ]);
+
+            if($request->farm_id && $request->farm_id != $animal->farm_id){
+                $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
+            }
 
             $animal->update($request->all());
             $animal->load(['maleParent', 'femaleParent']);
@@ -217,7 +232,9 @@ class AnimalController extends Controller
     public function destroy($animal): JsonResponse
     {
         try {
-            $animal = Animal::where('user_id', auth()->id())->where('id', $animal)->firstOrFail();
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $animal = $currentUser->animals()->where('animals.id', $animal)->firstOrFail();
             $animal->delete();
 
             return response()->json([

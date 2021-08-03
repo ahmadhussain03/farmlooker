@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
-use App\Models\Asset;
 use Illuminate\Http\Request;
+use App\Models\TradingAnimal;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class AssetController extends Controller
+class TradingAnimalController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,16 +19,16 @@ class AssetController extends Controller
     public function index(Request $request)
     {
         try {
-            $assetQuery = Asset::query()->where('user_id', auth()->id());
+            $tradingAnimalQuery = TradingAnimal::query()->where('user_id', auth()->id());
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $assets = $assetQuery->paginate($perPage);
+            $tradingAnimals = $tradingAnimalQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $assets
+                'data' => $tradingAnimals
             ]);
         } catch (\Exception $exception){
             return response()->json([
@@ -48,22 +48,35 @@ class AssetController extends Controller
     public function store(Request $request)
     {
         try {
-
             $this->validate($request, [
                 'type' => 'required|string|max:255',
                 'price' => 'required|numeric',
-                'purchase_date' => 'required|date'
+                'location' => 'required|string',
+                'dated' => 'required|date',
+                'dob' => 'required|date',
+                'image' => 'required|mimes:jpeg,jpg,png,bmp',
+                "phone" => "required|string|phone:AUTO,SA|max:20"
             ]);
 
-            $asset = Asset::create(array_merge($request->all(), [
-                'user_id' => auth()->id()
-            ]));
+            $imageName = time() . $request->image->getClientOriginalName();
+            if($request->image->move('images/trading_animal/', $imageName)){
+                $tradingAnimal = TradingAnimal::create(array_merge($request->all(), [
+                    'user_id' => auth()->id(),
+                    'image' => 'images/trading_animal/' . $imageName
+                ]));
 
-            return response()->json([
-                'code' => 200,
-                'message' => 'Asset Created Successfully',
-                'data' => $asset
-            ]);
+                return response()->json([
+                    'code' => 200,
+                    'message' => 'Trading Animal Created Successfully',
+                    'data' => $tradingAnimal
+                ]);
+            } else {
+                return response()->json([
+                    'code' => 500,
+                    'message' => 'Error Uploading Image.',
+                    'data' => null
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
         } catch (ValidationException $exception){
             return response()->json([
                 'code' => 422,
@@ -85,20 +98,20 @@ class AssetController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($asset)
+    public function show($trading_animal)
     {
         try {
-            $asset = Asset::findOrFail($asset);
+            $tradingAnimal = TradingAnimal::findOrFail($trading_animal);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $asset
+                'data' => $tradingAnimal
             ], Response::HTTP_OK);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Asset Not Found.',
+                'message' => 'Rental Equipment Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){
@@ -117,29 +130,49 @@ class AssetController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $asset)
+    public function update(Request $request, $trading_animal)
     {
         try {
+            $tradingAnimal = TradingAnimal::findOrFail($trading_animal);
 
-            $asset = Asset::findOrFail($asset);
-
-            $this->validate($request, [
+            $data = $this->validate($request, [
                 'type' => 'nullable|string|max:255',
                 'price' => 'nullable|numeric',
-                'purchase_date' => 'nullable|date'
+                'location' => 'nullable|string',
+                'dated' => 'nullable|date',
+                'dob' => 'nullable|date',
+                'image' => 'sometimes|mimes:jpeg,jpg,png,bmp',
+                "phone" => "nullable|string|phone:AUTO,SA|max:20"
             ]);
 
-            $asset->update($request->all());
+            $image = $tradingAnimal->image;
+
+            if($request->image){
+                unlink($tradingAnimal->getRawOriginal('image'));
+
+                $imageName = time() . $request->image->getClientOriginalName();
+                if($request->image->move('images/trading_animal/', $imageName)){
+                    $image = 'images/trading_animal/' . $imageName;
+                } else {
+                    return response()->json([
+                        'code' => 500,
+                        'message' => 'Error Uploading Image.',
+                        'data' => null
+                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }
+            }
+
+            $tradingAnimal->update(array_merge($request->all(), ['image' => $image]));
 
             return response()->json([
                 'code' => 200,
-                'message' => 'Asset Updated Successfully',
-                'data' => $asset
+                'message' => 'Trading Animal Updated Successfully',
+                'data' => $tradingAnimal
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Asset Not Found.',
+                'message' => 'Trading Animal Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (ValidationException $exception){
@@ -148,12 +181,6 @@ class AssetController extends Controller
                 'message' => $exception->getMessage(),
                 'data' => $exception->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        } catch (\Exception $exception){
-            return response()->json([
-                'code' => 500,
-                'message' => $exception->getMessage(),
-                'data' => null
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -163,22 +190,26 @@ class AssetController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($asset)
+    public function destroy($trading_animal)
     {
         try {
-            $asset = Asset::findOrFail($asset);
+            $tradingAnimal = TradingAnimal::findOrFail($trading_animal);
 
-            $asset->delete();
+            if(file_exists($tradingAnimal->getRawOriginal('image'))){
+                unlink($tradingAnimal->getRawOriginal('image'));
+            }
+
+            $tradingAnimal->delete();
 
             return response()->json([
                 "code" => 200,
-                "message" => "Asset Deleted Successfully!",
+                "message" => "Trading Animal Deleted Successfully!",
                 "data" => null
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Asset Not Found.',
+                'message' => 'Trading Animal Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){

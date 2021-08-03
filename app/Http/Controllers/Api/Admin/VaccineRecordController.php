@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
-use App\Models\Worker;
+use App\Models\Animal;
 use Illuminate\Http\Request;
+use App\Models\VaccineRecord;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class WorkerController extends Controller
+class VaccineRecordController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,16 +20,18 @@ class WorkerController extends Controller
     public function index(Request $request)
     {
         try {
-            $workerQuery = Worker::query()->where('user_id', auth()->id());
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $vaccineRecordQuery = $currentUser->vaccineRecords();
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $workers = $workerQuery->paginate($perPage);
+            $vaccineRecords = $vaccineRecordQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $workers
+                'data' => $vaccineRecords
             ]);
         } catch (\Exception $exception){
             return response()->json([
@@ -48,25 +51,24 @@ class WorkerController extends Controller
     public function store(Request $request)
     {
         try {
-
-            $this->validate($request, [
+            $data = $this->validate($request, [
+                'animal_id' => 'required|numeric',
                 'name' => 'required|string|max:255',
-                'phone_no' => 'required|string|phone:AUTO,SA|max:20',
-                'address' => 'required|string',
-                'pay' => 'required|numeric',
-                'location' => 'required|string',
-                'joining_date' => 'required|date',
-                'duty' => 'required|string|max:255'
+                'reason' => 'required|string',
+                'date' => 'required|date'
             ]);
 
-            $worker = Worker::create(array_merge($request->all(), [
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $animal = $currentUser->animals()->where('animals.id', $request->animal_id)->firstOrFail();
+            $vaccineRecord = VaccineRecord::create(array_merge($data, [
                 'user_id' => auth()->id()
             ]));
 
             return response()->json([
                 'code' => 200,
-                'message' => 'Worker Created Successfully',
-                'data' => $worker
+                'message' => 'Vaccine Record Created Successfully',
+                'data' => $vaccineRecord
             ]);
         } catch (ValidationException $exception){
             return response()->json([
@@ -89,20 +91,23 @@ class WorkerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($worker)
+    public function show($vaccine_record)
     {
         try {
-            $worker = Worker::findOrFail($worker);
+
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $vaccineRecord = $currentUser->vaccineRecords()->where('vaccine_records.id', $vaccine_record)->firstOrFail();
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $worker
+                'data' => $vaccineRecord
             ], Response::HTTP_OK);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Worker Not Found.',
+                'message' => 'Vaccine Record Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){
@@ -121,32 +126,35 @@ class WorkerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $worker)
+    public function update(Request $request, $vaccine_record)
     {
         try {
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $vaccineRecord = $currentUser->vaccineRecords()->where('vaccine_records.id', $vaccine_record)->firstOrFail();
 
-            $worker = Worker::findOrFail($worker);
-
-            $this->validate($request, [
+            $data = $this->validate($request, [
+                'animal_id' => 'nullable|numeric',
                 'name' => 'nullable|string|max:255',
-                'phone_no' => 'nullable|string|phone:AUTO,SA|max:20',
-                'address' => 'nullable|string',
-                'pay' => 'nullable|numeric',
-                'location' => 'nullable|string',
-                'joining_date' => 'nullable|date'
+                'reason' => 'nullable|string',
+                'date' => 'nullable|date'
             ]);
 
-            $worker->update($request->all());
+            if($request->has('animal_id') && $request->animal_id != $vaccineRecord->animal_id){
+                $currentUser->animals()->where('animals.id', $request->animal_id)->firstOrFail();
+            }
+
+            $vaccineRecord->update($data);
 
             return response()->json([
                 'code' => 200,
-                'message' => 'Worker Updated Successfully',
-                'data' => $worker
+                'message' => 'Vaccine Record Updated Successfully',
+                'data' => $vaccineRecord
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Worker Not Found.',
+                'message' => 'Vaccine Record Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (ValidationException $exception){
@@ -170,22 +178,24 @@ class WorkerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($worker)
+    public function destroy($vaccine_record)
     {
         try {
-            $worker = Worker::findOrFail($worker);
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $vaccineRecord = $currentUser->vaccineRecords()->where('vaccine_records.id', $vaccine_record)->firstOrFail();
 
-            $worker->delete();
+            $vaccineRecord->delete();
 
             return response()->json([
                 "code" => 200,
-                "message" => "Worker Deleted Successfully!",
+                "message" => "Vaccine Record Deleted Successfully!",
                 "data" => null
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Worker Not Found.',
+                'message' => 'Vaccine Record Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){

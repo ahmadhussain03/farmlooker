@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
-use App\Models\FeedType;
-use App\Models\OrderFeed;
 use Illuminate\Http\Request;
+use App\Models\RentalEquipment;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class OrderFeedController extends Controller
+class RentalEquipmentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,16 +19,16 @@ class OrderFeedController extends Controller
     public function index(Request $request)
     {
         try {
-            $orderFeedQuery = OrderFeed::query()->with('feedTypes')->where('user_id', auth()->id());
+            $rentalEquipmentQuery = RentalEquipment::query()->where('user_id', auth()->id());
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $orderFeeds = $orderFeedQuery->paginate($perPage);
+            $rentalEquipments = $rentalEquipmentQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $orderFeeds
+                'data' => $rentalEquipments
             ]);
         } catch (\Exception $exception){
             return response()->json([
@@ -51,37 +50,33 @@ class OrderFeedController extends Controller
         try {
             $this->validate($request, [
                 'name' => 'required|string|max:255|min:2',
-                "phone_no" => "required|string|phone:AUTO,SA|max:20",
-                'address' => 'required|string',
-                'description' => 'required|string',
-                'quantity' => 'required|numeric',
-                'feed_types' => 'required|array',
-                'feed_types.*' => 'required|string'
+                "model" => "required|string|max:255",
+                'rent' => 'required|numeric',
+                'location' => 'required|string',
+                'dated' => 'required|date',
+                'image' => 'required|mimes:jpeg,jpg,png,bmp',
+                "phone" => "required|string|phone:AUTO,SA|max:20"
             ]);
 
-            $orderFeed = OrderFeed::create([
-                'name' => $request->name,
-                'phone_no' => $request->phone_no,
-                'address' => $request->address,
-                'description' => $request->description,
-                'quantity' => $request->quantity,
-                'user_id' => auth()->id()
-            ]);
+            $imageName = time() . $request->image->getClientOriginalName();
+            if($request->image->move('images/rental_equipment/', $imageName)){
+                $rentalEquipment = RentalEquipment::create(array_merge($request->all(), [
+                    'user_id' => auth()->id(),
+                    'image' => 'images/rental_equipment/' . $imageName
+                ]));
 
-            foreach($request->feed_types as $type){
-                FeedType::create([
-                    'feed' => $type,
-                    'order_feed_id' => $orderFeed->id
+                return response()->json([
+                    'code' => 200,
+                    'message' => 'Rental Equipment Created Successfully',
+                    'data' => $rentalEquipment
                 ]);
+            } else {
+                return response()->json([
+                    'code' => 500,
+                    'message' => 'Error Uploading Image.',
+                    'data' => null
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-
-            $orderFeed->load('feedTypes');
-
-            return response()->json([
-                'code' => 200,
-                'message' => 'Order Feed Created Successfully',
-                'data' => $orderFeed
-            ]);
         } catch (ValidationException $exception){
             return response()->json([
                 'code' => 422,
@@ -103,20 +98,20 @@ class OrderFeedController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($order_feed)
+    public function show($rental_equipment)
     {
         try {
-            $orderFeed = OrderFeed::with('feedTypes')->where('id', $order_feed)->where('user_id', auth()->id())->firstOrFail();
+            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $orderFeed
+                'data' => $rentalEquipment
             ], Response::HTTP_OK);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Order Feed Not Found.',
+                'message' => 'Rental Equipment Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){
@@ -135,45 +130,49 @@ class OrderFeedController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $order_feed)
+    public function update(Request $request, $rental_equipment)
     {
         try {
-            $orderFeed = OrderFeed::with('feedTypes')->where('user_id', auth()->id())->where('id', $order_feed)->firstOrFail();
+            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
 
             $this->validate($request, [
                 'name' => 'nullable|string|max:255|min:2',
-                "phone_no" => "nullable|string|phone:AUTO,SA|max:20",
-                'address' => 'nullable|string',
-                'description' => 'nullable|string',
-                'quantity' => 'nullable|numeric',
-                'feed_types' => 'nullable|array',
-                'feed_types.*' => 'string'
+                "model" => "nullable|string|max:255",
+                'rent' => 'nullable|numeric',
+                'location' => 'nullable|string',
+                'dated' => 'nullable|date',
+                'image' => 'sometimes|mimes:jpeg,jpg,png,bmp',
+                "phone" => "nullable|string|phone:AUTO,SA|max:20"
             ]);
 
-            $orderFeed->update(array_diff_key($request->all(), array_flip((array) ['feed_types'])));
+            $image = $rentalEquipment->image;
 
-            if($request->feed_types && count($request->feed_types) > 0){
-                FeedType::where('order_feed_id', $orderFeed->id)->delete();
+            if($request->image){
+                unlink($rentalEquipment->getRawOriginal('image'));
 
-                foreach($request->feed_types as $type) {
-                    FeedType::create([
-                        'feed' => $type,
-                        'order_feed_id' => $orderFeed->id
-                    ]);
+                $imageName = time() . $request->image->getClientOriginalName();
+                if($request->image->move('images/rental_equipment/', $imageName)){
+                    $image = 'images/rental_equipment/' . $imageName;
+                } else {
+                    return response()->json([
+                        'code' => 500,
+                        'message' => 'Error Uploading Image.',
+                        'data' => null
+                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
                 }
-
-                $orderFeed->load('feedTypes');
             }
+
+            $rentalEquipment->update(array_merge($request->all(), ['image' => $image]));
 
             return response()->json([
                 'code' => 200,
-                'message' => 'Order Feed Updated Successfully',
-                'data' => $orderFeed
+                'message' => 'Rental Equipment Updated Successfully',
+                'data' => $rentalEquipment
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Order Feed Not Found.',
+                'message' => 'Rental Equipment Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (ValidationException $exception){
@@ -191,21 +190,26 @@ class OrderFeedController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($order_feed)
+    public function destroy($rental_equipment)
     {
         try {
-            $orderFeed = OrderFeed::findOrFail($order_feed);
-            $orderFeed->delete();
+            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
+
+            if(file_exists($rentalEquipment->getRawOriginal('image'))){
+                unlink($rentalEquipment->getRawOriginal('image'));
+            }
+
+            $rentalEquipment->delete();
 
             return response()->json([
                 "code" => 200,
-                "message" => "Order Feed Deleted Successfully!",
+                "message" => "Rental Equipment Deleted Successfully!",
                 "data" => null
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Order Feed Not Found.',
+                'message' => 'Rental Equipment Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){

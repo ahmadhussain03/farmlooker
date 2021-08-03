@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
+use App\Models\Worker;
 use Illuminate\Http\Request;
-use App\Models\TradingAnimal;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class TradingAnimalController extends Controller
+class WorkerController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,16 +19,18 @@ class TradingAnimalController extends Controller
     public function index(Request $request)
     {
         try {
-            $tradingAnimalQuery = TradingAnimal::query()->where('user_id', auth()->id());
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $workerQuery = $currentUser->workers()->with(['farm']);
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $tradingAnimals = $tradingAnimalQuery->paginate($perPage);
+            $workers = $workerQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $tradingAnimals
+                'data' => $workers
             ]);
         } catch (\Exception $exception){
             return response()->json([
@@ -48,35 +50,29 @@ class TradingAnimalController extends Controller
     public function store(Request $request)
     {
         try {
-            $this->validate($request, [
-                'type' => 'required|string|max:255',
-                'price' => 'required|numeric',
+
+            $data = $this->validate($request, [
+                'name' => 'required|string|max:255',
+                'phone_no' => 'required|string|phone:AUTO,SA|max:20',
+                'address' => 'required|string',
+                'pay' => 'required|numeric',
                 'location' => 'required|string',
-                'dated' => 'required|date',
-                'dob' => 'required|date',
-                'image' => 'required|mimes:jpeg,jpg,png,bmp',
-                "phone" => "required|string|phone:AUTO,SA|max:20"
+                'joining_date' => 'required|date',
+                'duty' => 'required|string|max:255',
+                'farm_id' => 'required|integer|min:1'
             ]);
 
-            $imageName = time() . $request->image->getClientOriginalName();
-            if($request->image->move('images/trading_animal/', $imageName)){
-                $tradingAnimal = TradingAnimal::create(array_merge($request->all(), [
-                    'user_id' => auth()->id(),
-                    'image' => 'images/trading_animal/' . $imageName
-                ]));
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
 
-                return response()->json([
-                    'code' => 200,
-                    'message' => 'Trading Animal Created Successfully',
-                    'data' => $tradingAnimal
-                ]);
-            } else {
-                return response()->json([
-                    'code' => 500,
-                    'message' => 'Error Uploading Image.',
-                    'data' => null
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
+            $worker = Worker::create($data);
+
+            return response()->json([
+                'code' => 200,
+                'message' => 'Worker Created Successfully',
+                'data' => $worker
+            ]);
         } catch (ValidationException $exception){
             return response()->json([
                 'code' => 422,
@@ -98,20 +94,22 @@ class TradingAnimalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($trading_animal)
+    public function show($worker)
     {
         try {
-            $tradingAnimal = TradingAnimal::findOrFail($trading_animal);
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $worker = $currentUser->workers()->where('workers.id', $worker)->firstOrFail();
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $tradingAnimal
+                'data' => $worker
             ], Response::HTTP_OK);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Rental Equipment Not Found.',
+                'message' => 'Worker Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){
@@ -130,49 +128,39 @@ class TradingAnimalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $trading_animal)
+    public function update(Request $request, $worker)
     {
         try {
-            $tradingAnimal = TradingAnimal::findOrFail($trading_animal);
+
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $worker = $currentUser->workers()->where('workers.id', $worker)->firstOrFail();
 
             $data = $this->validate($request, [
-                'type' => 'nullable|string|max:255',
-                'price' => 'nullable|numeric',
+                'name' => 'nullable|string|max:255',
+                'phone_no' => 'nullable|string|phone:AUTO,SA|max:20',
+                'address' => 'nullable|string',
+                'pay' => 'nullable|numeric',
                 'location' => 'nullable|string',
-                'dated' => 'nullable|date',
-                'dob' => 'nullable|date',
-                'image' => 'sometimes|mimes:jpeg,jpg,png,bmp',
-                "phone" => "nullable|string|phone:AUTO,SA|max:20"
+                'joining_date' => 'nullable|date',
+                'farm_id' => 'nullable|integer|min:1'
             ]);
 
-            $image = $tradingAnimal->image;
-
-            if($request->image){
-                unlink($tradingAnimal->getRawOriginal('image'));
-
-                $imageName = time() . $request->image->getClientOriginalName();
-                if($request->image->move('images/trading_animal/', $imageName)){
-                    $image = 'images/trading_animal/' . $imageName;
-                } else {
-                    return response()->json([
-                        'code' => 500,
-                        'message' => 'Error Uploading Image.',
-                        'data' => null
-                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
-                }
+            if($request->farm_id && $request->farm_id != $worker->farm_id){
+                $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
             }
 
-            $tradingAnimal->update(array_merge($request->all(), ['image' => $image]));
+            $worker->update($data);
 
             return response()->json([
                 'code' => 200,
-                'message' => 'Trading Animal Updated Successfully',
-                'data' => $tradingAnimal
+                'message' => 'Worker Updated Successfully',
+                'data' => $worker
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Trading Animal Not Found.',
+                'message' => 'Worker Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (ValidationException $exception){
@@ -181,6 +169,12 @@ class TradingAnimalController extends Controller
                 'message' => $exception->getMessage(),
                 'data' => $exception->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $exception){
+            return response()->json([
+                'code' => 500,
+                'message' => $exception->getMessage(),
+                'data' => null
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -190,26 +184,24 @@ class TradingAnimalController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($trading_animal)
+    public function destroy($worker)
     {
         try {
-            $tradingAnimal = TradingAnimal::findOrFail($trading_animal);
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $worker = $currentUser->workers()->where('workers.id', $worker)->firstOrFail();
 
-            if(file_exists($tradingAnimal->getRawOriginal('image'))){
-                unlink($tradingAnimal->getRawOriginal('image'));
-            }
-
-            $tradingAnimal->delete();
+            $worker->delete();
 
             return response()->json([
                 "code" => 200,
-                "message" => "Trading Animal Deleted Successfully!",
+                "message" => "Worker Deleted Successfully!",
                 "data" => null
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Trading Animal Not Found.',
+                'message' => 'Worker Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){

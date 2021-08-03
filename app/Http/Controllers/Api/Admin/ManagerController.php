@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
-use App\Models\Animal;
+use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\VaccineRecord;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class VaccineRecordController extends Controller
+class ManagerController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,16 +20,17 @@ class VaccineRecordController extends Controller
     public function index(Request $request)
     {
         try {
-            $vaccineRecordQuery = VaccineRecord::query()->where('user_id', auth()->id());
+
+            $managerQuery = User::query()->where('user_type', 'moderator')->where('parent_id', auth()->id());
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $vaccineRecords = $vaccineRecordQuery->paginate($perPage);
+            $managers = $managerQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $vaccineRecords
+                'data' => $managers
             ]);
         } catch (\Exception $exception){
             return response()->json([
@@ -50,29 +51,36 @@ class VaccineRecordController extends Controller
     {
         try {
             $this->validate($request, [
-                'animal_id' => 'required|numeric',
-                'name' => 'required|string|max:255',
-                'reason' => 'required|string',
-                'date' => 'required|date'
+                "email" => "required|email|max:255|unique:users",
+                "password" => "required|confirmed|min:6|max:255",
+                "first_name" => "required|string|max:255",
+                "last_name" => "required|string|max:255",
+                "phone_no" => "required|string|phone:AUTO,SA|max:20"
             ]);
 
-            Animal::findOrFail($request->animal_id);
-            $vaccineRecord = VaccineRecord::create(array_merge($request->all(), [
-                'user_id' => auth()->id()
-            ]));
+            $user = User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'phone_no' => $request->phone_no,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'parent_id' => auth()->id(),
+            ]);
+
+            $user->forceFill(['user_type' => 'moderator'])->save();
 
             return response()->json([
                 'code' => 200,
-                'message' => 'Vaccine Record Created Successfully',
-                'data' => $vaccineRecord
-            ]);
+                'message' => 'Manager Created Successfully',
+                'data' => $user
+            ], Response::HTTP_OK);
         } catch (ValidationException $exception){
             return response()->json([
                 'code' => 422,
                 'message' => $exception->getMessage(),
                 'data' => $exception->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        } catch (\Exception $exception){
+        } catch(\Exception $exception){
             return response()->json([
                 'code' => 500,
                 'message' => $exception->getMessage(),
@@ -87,29 +95,9 @@ class VaccineRecordController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($vaccine_record)
+    public function show($id)
     {
-        try {
-            $vaccineRecord = VaccineRecord::findOrFail($vaccine_record);
-
-            return response()->json([
-                'code' => 200,
-                'message' => null,
-                'data' => $vaccineRecord
-            ], Response::HTTP_OK);
-        } catch (ModelNotFoundException $exception){
-            return response()->json([
-                'code' => 404,
-                'message' => 'Vaccine Record Not Found.',
-                'data' => null
-            ], Response::HTTP_NOT_FOUND);
-        } catch (\Exception $exception){
-            return response()->json([
-                'code' => 500,
-                'message' => $exception->getMessage(),
-                'data' => null
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        //
     }
 
     /**
@@ -119,33 +107,30 @@ class VaccineRecordController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $vaccine_record)
+    public function update(Request $request, $manager)
     {
         try {
+            $manager = User::where('id', $manager)->where('user_type', 'moderator')->where('parent_id', auth()->id())->firstOrFail();
 
-            $vaccineRecord = VaccineRecord::findOrFail($vaccine_record);
-
-            $this->validate($request, [
-                'animal_id' => 'nullable|numeric',
-                'name' => 'nullable|string|max:255',
-                'reason' => 'nullable|string',
-                'date' => 'nullable|date'
+            $data = $this->validate($request, [
+                "email" => "nullable|email|max:255|unique:users,email," . $manager->id,
+                "password" => "nullable|confirmed|min:6|max:255",
+                "first_name" => "nullable|string|max:255",
+                "last_name" => "nullable|string|max:255",
+                "phone_no" => "nullable|string|phone:AUTO,SA|max:20"
             ]);
 
-            if($request->has('animal_id'))
-                Animal::findOrFail($request->animal_id);
-
-            $vaccineRecord->update($request->all());
+            $manager->update($data);
 
             return response()->json([
                 'code' => 200,
-                'message' => 'Vaccine Record Updated Successfully',
-                'data' => $vaccineRecord
+                'message' => 'Manager Updated Successfully',
+                'data' => $manager
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Vaccine Record Not Found.',
+                'message' => 'Manager Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (ValidationException $exception){
@@ -154,12 +139,6 @@ class VaccineRecordController extends Controller
                 'message' => $exception->getMessage(),
                 'data' => $exception->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        } catch (\Exception $exception){
-            return response()->json([
-                'code' => 500,
-                'message' => $exception->getMessage(),
-                'data' => null
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -169,22 +148,22 @@ class VaccineRecordController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($vaccine_record)
+    public function destroy($manager)
     {
         try {
-            $vaccineRecord = VaccineRecord::findOrFail($vaccine_record);
+            $manager = User::where('id', $manager)->where('user_type', 'moderator')->where('parent_id', auth()->id())->firstOrFail();
 
-            $vaccineRecord->delete();
+            $manager->delete();
 
             return response()->json([
                 "code" => 200,
-                "message" => "Vaccine Record Deleted Successfully!",
+                "message" => "Manager Deleted Successfully!",
                 "data" => null
             ]);
         } catch (ModelNotFoundException $exception){
             return response()->json([
                 'code' => 404,
-                'message' => 'Vaccine Record Not Found.',
+                'message' => 'Manager Not Found.',
                 'data' => null
             ], Response::HTTP_NOT_FOUND);
         } catch (\Exception $exception){

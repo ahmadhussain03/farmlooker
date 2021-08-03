@@ -30,7 +30,7 @@ class CreateAnimalsTable extends Migration
 
             $table->foreignId('male_breeder_id')->nullable()->constrained('animals')->onDelete('CASCADE');
             $table->foreignId('female_breeder_id')->nullable()->constrained('animals')->onDelete('CASCADE');
-            $table->foreignId('user_id')->constrained()->onDelete('CASCADE');
+            $table->foreignId('farm_id')->constrained()->onDelete('CASCADE');
 
             $table->timestamps();
         });
