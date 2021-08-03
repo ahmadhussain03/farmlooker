@@ -19,7 +19,9 @@ class AssetController extends Controller
     public function index(Request $request)
     {
         try {
-            $assetQuery = Asset::query()->where('user_id', auth()->id());
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $assetQuery = $currentUser->assets();
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
@@ -49,15 +51,17 @@ class AssetController extends Controller
     {
         try {
 
-            $this->validate($request, [
+            $data = $this->validate($request, [
                 'type' => 'required|string|max:255',
                 'price' => 'required|numeric',
-                'purchase_date' => 'required|date'
+                'purchase_date' => 'required|date',
+                'farm_id' => 'required|integer|min:1'
             ]);
 
-            $asset = Asset::create(array_merge($request->all(), [
-                'user_id' => auth()->id()
-            ]));
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
+            $asset = Asset::create($data);
 
             return response()->json([
                 'code' => 200,
@@ -88,7 +92,9 @@ class AssetController extends Controller
     public function show($asset)
     {
         try {
-            $asset = Asset::findOrFail($asset);
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $asset = $currentUser->assets()->where('assets.id', $asset)->firstOrFail();
 
             return response()->json([
                 'code' => 200,
@@ -121,15 +127,23 @@ class AssetController extends Controller
     {
         try {
 
-            $asset = Asset::findOrFail($asset);
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $asset = $currentUser->assets()->where('assets.id', $asset)->firstOrFail();
 
-            $this->validate($request, [
+
+            $data = $this->validate($request, [
                 'type' => 'nullable|string|max:255',
                 'price' => 'nullable|numeric',
-                'purchase_date' => 'nullable|date'
+                'purchase_date' => 'nullable|date',
+                'farm_id' => 'nullable|integer|min:1'
             ]);
 
-            $asset->update($request->all());
+            if($request->farm_id && $request->farm_id != $asset->farm_id){
+                $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
+            }
+
+            $asset->update($data);
 
             return response()->json([
                 'code' => 200,
@@ -166,7 +180,9 @@ class AssetController extends Controller
     public function destroy($asset)
     {
         try {
-            $asset = Asset::findOrFail($asset);
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $asset = $currentUser->assets()->where('assets.id', $asset)->firstOrFail();
 
             $asset->delete();
 

@@ -16,7 +16,7 @@ class CreateAssetsTable extends Migration
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('user_id')->constrained()->onDelete('CASCADE');
+            $table->foreignId('farm_id')->constrained()->onDelete('CASCADE');
 
             $table->string('type');
             $table->date('purchase_date');

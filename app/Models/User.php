@@ -129,6 +129,11 @@ class User extends Authenticatable
         return $this->hasManyDeep(DiseaseAlert::class, ['farm_user', Farm::class, Animal::class]);
     }
 
+    public function assets()
+    {
+        return $this->hasManyDeep(Asset::class, ['farm_user', Farm::class]);
+    }
+
     public function activeSubscription()
     {
         return $this->hasOne(UserSubscription::class, 'user_id', 'id')->where('status', 'SUCCESSFULL');
