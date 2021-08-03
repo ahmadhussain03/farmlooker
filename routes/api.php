@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\VaccineRecordController;
 use App\Http\Controllers\Api\RentalEquipmentController;
 use App\Http\Controllers\Api\HomeTradingAnimalController;
 use App\Http\Controllers\Api\HomeRentalEquipmentController;
+use App\Http\Controllers\Api\ManagerController;
 use App\Http\Controllers\Api\SubscriptionController;
 
 /*
@@ -81,6 +82,9 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     // Purchased Animals List
     Route::get('expense', [ExpenseController::class, 'index']);
+
+    // Manager Routes
+    Route::apiResource('manager', ManagerController::class);
 
     // Home Routes
     Route::prefix('home')->group(function () {
