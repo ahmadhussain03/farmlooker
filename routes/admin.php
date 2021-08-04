@@ -34,7 +34,7 @@ use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::group(['middleware' => ['auth:api', 'admin']], function(){
+Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     // Logout Route
     Route::post('/logout', [AuthController::class, 'logout']);
 

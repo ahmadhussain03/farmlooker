@@ -28,6 +28,8 @@ class CreateOrderFeedsTable extends Migration
         });
     }
 
+    
+
     /**
      * Reverse the migrations.
      *
