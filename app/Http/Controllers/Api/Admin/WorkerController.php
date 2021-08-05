@@ -143,6 +143,7 @@ class WorkerController extends Controller
                 'pay' => 'nullable|numeric',
                 'location' => 'nullable|string',
                 'joining_date' => 'nullable|date',
+                'duty' => 'nullable|string|max:255',
                 'farm_id' => 'nullable|integer|min:1'
             ]);
 
