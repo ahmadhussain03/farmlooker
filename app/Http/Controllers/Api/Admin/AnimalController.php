@@ -26,7 +26,9 @@ class AnimalController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $animalQuery = Animal::query()->with(['maleParent', 'femaleParent', 'farm']);
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm']);
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
