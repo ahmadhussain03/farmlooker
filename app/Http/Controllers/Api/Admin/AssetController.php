@@ -55,6 +55,7 @@ class AssetController extends Controller
                 'type' => 'required|string|max:255',
                 'price' => 'required|numeric',
                 'purchase_date' => 'required|date',
+                'location' => 'required|string|max:255',
                 'farm_id' => 'required|integer|min:1'
             ]);
 
@@ -136,6 +137,7 @@ class AssetController extends Controller
                 'type' => 'nullable|string|max:255',
                 'price' => 'nullable|numeric',
                 'purchase_date' => 'nullable|date',
+                'location' => 'nullable|string|max:255',
                 'farm_id' => 'nullable|integer|min:1'
             ]);
 
