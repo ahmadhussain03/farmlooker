@@ -135,7 +135,8 @@ class AnimalController extends Controller
                 'location' => 'required',
                 'disease' => 'required|in:healthy,sick',
                 'price' => 'nullable|numeric',
-                'farm_id' => 'required|integer|min:1'
+                'farm_id' => 'required|integer|min:1',
+                'previous_owner' => 'required_if:add_as,purchased'
             ]);
 
             /** @var App\Models\User */
@@ -191,6 +192,7 @@ class AnimalController extends Controller
                 'location' => 'nullable',
                 'disease' => 'nullable|in:healthy,sick',
                 'price' => 'nullable|numeric',
+                'previous_owner' => 'nullable|required_if:add_as,purchased'
             ]);
 
             if($request->farm_id && $request->farm_id != $animal->farm_id){
