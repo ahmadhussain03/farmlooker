@@ -110,7 +110,7 @@ class AuthController extends Controller
                 "device_name" => "required|string|max:255",
             ]);
 
-            $user = User::with('activeSubscription')->where('email', $request->email)->first();
+            $user = User::with(['activeSubscription', 'farms'])->where('email', $request->email)->first();
             if (! $user || ! Hash::check($request->password, $user->password)) {
                 throw ValidationException::withMessages([
                     'email' => ['The provided credentials are incorrect.'],
@@ -148,7 +148,7 @@ class AuthController extends Controller
      */
     public function user(): JsonResponse
     {
-        $user = User::with('activeSubscription')->findOrFail(auth()->id());
+        $user = User::with(['activeSubscription', 'farms'])->findOrFail(auth()->id());
 
         return response()->json([
             'code' => 200,
