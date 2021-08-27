@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use DB;
+use DataTables;
 use App\Models\Animal;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Models\Farm;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -29,6 +30,10 @@ class AnimalController extends Controller
             /** @var App\Models\User */
             $currentUser = auth()->user();
             $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm']);
+
+            if($request->has('client') && $request->client === 'datatable'){
+                return DataTables::eloquent($animalQuery)->addIndexColumn()->toJson();
+            }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
