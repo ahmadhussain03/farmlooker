@@ -23,6 +23,7 @@ class VaccineRecordController extends Controller
             /** @var App\Models\User */
             $currentUser = auth()->user();
             $vaccineRecordQuery = $currentUser->vaccineRecords();
+            $vaccineRecordQuery->with(['animal']);
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
@@ -64,6 +65,8 @@ class VaccineRecordController extends Controller
             $vaccineRecord = VaccineRecord::create(array_merge($data, [
                 'user_id' => auth()->id()
             ]));
+
+            $vaccineRecord->load(['animal']);
 
             return response()->json([
                 'code' => 200,
