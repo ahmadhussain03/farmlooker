@@ -42,6 +42,11 @@ class TradingAnimal extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'dob' => 'date',
+        'dated' => 'date'
+    ];
+
     public function getImageAttribute($value)
     {
         return asset($value);

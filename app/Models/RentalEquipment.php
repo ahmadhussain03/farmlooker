@@ -41,6 +41,10 @@ class RentalEquipment extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'dated' => 'date'
+    ];
+
     public function getImageAttribute($value)
     {
         return asset($value);

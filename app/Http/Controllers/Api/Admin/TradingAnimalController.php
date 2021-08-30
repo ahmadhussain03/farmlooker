@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use DataTables;
 use Illuminate\Http\Request;
 use App\Models\TradingAnimal;
 use App\Http\Controllers\Controller;
@@ -20,6 +21,21 @@ class TradingAnimalController extends Controller
     {
         try {
             $tradingAnimalQuery = TradingAnimal::query()->where('user_id', auth()->id());
+
+            if($request->has('client') && $request->client === 'datatable'){
+                return DataTables::eloquent($tradingAnimalQuery)
+                        ->editColumn('image', function($tradingAnimal){
+                            return "<img class='h-16 w-full p-1 border text-center rounded shadow ' src=". asset($tradingAnimal->image) .">";
+                        })
+                        ->editColumn('dob', function($tradingAnimal){
+                            return $tradingAnimal->dob->toFormattedDateString();
+                        })
+                        ->editColumn('dated', function($tradingAnimal){
+                            return $tradingAnimal->dated->toFormattedDateString();
+                        })
+                        ->rawColumns(['image'])
+                        ->addIndexColumn()->toJson();
+            }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use DataTables;
 use Illuminate\Http\Request;
 use App\Models\RentalEquipment;
 use App\Http\Controllers\Controller;
@@ -20,6 +21,18 @@ class RentalEquipmentController extends Controller
     {
         try {
             $rentalEquipmentQuery = RentalEquipment::query()->where('user_id', auth()->id());
+
+            if($request->has('client') && $request->client === 'datatable'){
+                return DataTables::eloquent($rentalEquipmentQuery)
+                        ->editColumn('image', function($rentalEquipment){
+                            return "<img class='h-16 w-full p-1 border text-center rounded shadow ' src=". asset($rentalEquipment->image) .">";
+                        })
+                        ->editColumn('dated', function($rentalEquipment){
+                            return $rentalEquipment->dated->toFormattedDateString();
+                        })
+                        ->rawColumns(['image'])
+                        ->addIndexColumn()->toJson();
+            }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
