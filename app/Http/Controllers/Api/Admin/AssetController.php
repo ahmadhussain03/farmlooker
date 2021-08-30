@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use DataTables;
 use App\Models\Asset;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -21,7 +23,13 @@ class AssetController extends Controller
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $assetQuery = $currentUser->assets();
+            $assetQuery = $currentUser->assets()->with(['farm']);
+
+            if($request->has('client') && $request->client === 'datatable'){
+                return DataTables::eloquent($assetQuery)->editColumn('purchase_date', function($asset){
+                    return $asset->purchase_date->toFormattedDateString();
+                })->addIndexColumn()->toJson();
+            }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 

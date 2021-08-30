@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Models\Animal;
+use DataTables;
 use App\Models\DiseaseAlert;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -23,6 +23,12 @@ class DiseaseAlertController extends Controller
             /** @var App\Models\User */
             $currentUser = auth()->user();
             $diseaseAlertQuery = $currentUser->diseaseAlerts()->with('animal');
+
+            if($request->has('client') && $request->client === 'datatable'){
+                return DataTables::eloquent($diseaseAlertQuery)->editColumn('symptoms', function($alert){
+                    return $alert->symptoms;
+                })->addIndexColumn()->toJson();
+            }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 

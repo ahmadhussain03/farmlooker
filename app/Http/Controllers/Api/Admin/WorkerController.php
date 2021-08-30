@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use DataTables;
 use App\Models\Worker;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -22,6 +23,12 @@ class WorkerController extends Controller
             /** @var App\Models\User */
             $currentUser = auth()->user();
             $workerQuery = $currentUser->workers()->with(['farm']);
+
+            if($request->has('client') && $request->client === 'datatable'){
+                return DataTables::eloquent($workerQuery)->editColumn('joining_date', function($worker){
+                    return $worker->joining_date->toFormattedDateString();
+                })->addIndexColumn()->toJson();
+            }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 

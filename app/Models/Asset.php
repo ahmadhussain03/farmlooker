@@ -33,6 +33,10 @@ class Asset extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'purchase_date' => 'date'
+    ];
+
     public function farm()
     {
         return $this->belongsTo(Farm::class);

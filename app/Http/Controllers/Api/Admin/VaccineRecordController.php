@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Models\Animal;
+use DataTables;
 use Illuminate\Http\Request;
 use App\Models\VaccineRecord;
 use App\Http\Controllers\Controller;
@@ -24,6 +24,10 @@ class VaccineRecordController extends Controller
             $currentUser = auth()->user();
             $vaccineRecordQuery = $currentUser->vaccineRecords();
             $vaccineRecordQuery->with(['animal']);
+
+            if($request->has('client') && $request->client === 'datatable'){
+                return DataTables::eloquent($vaccineRecordQuery)->addIndexColumn()->toJson();
+            }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 

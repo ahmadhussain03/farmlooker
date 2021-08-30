@@ -42,6 +42,10 @@ class Worker extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'joining_date' => 'date'
+    ];
+
     public function farm(): BelongsTo
     {
         return $this->belongsTo(Farm::class);
