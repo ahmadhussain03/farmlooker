@@ -25,9 +25,13 @@ class WorkerController extends Controller
             $workerQuery = $currentUser->workers()->with(['farm']);
 
             if($request->has('client') && $request->client === 'datatable'){
+                $workerQuery->select(["*", "workers.id as workerId"]);
                 return DataTables::eloquent($workerQuery)->editColumn('joining_date', function($worker){
                     return $worker->joining_date->toFormattedDateString();
-                })->addIndexColumn()->toJson();
+                })
+                ->setRowId('workerId')
+                ->addIndexColumn()
+                ->toJson();
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
