@@ -28,7 +28,9 @@ class AssetController extends Controller
             if($request->has('client') && $request->client === 'datatable'){
                 return DataTables::eloquent($assetQuery)->editColumn('purchase_date', function($asset){
                     return $asset->purchase_date->toFormattedDateString();
-                })->addIndexColumn()->toJson();
+                })->addColumn('action', function(){})
+                ->rawColumns(['action'])
+                ->addIndexColumn()->toJson();
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
