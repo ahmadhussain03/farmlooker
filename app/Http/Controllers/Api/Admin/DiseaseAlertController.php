@@ -25,9 +25,14 @@ class DiseaseAlertController extends Controller
             $diseaseAlertQuery = $currentUser->diseaseAlerts()->with('animal');
 
             if($request->has('client') && $request->client === 'datatable'){
+                $diseaseAlertQuery->select(["*", "disease_alerts.id as diseaseId"]);
+
                 return DataTables::eloquent($diseaseAlertQuery)->editColumn('symptoms', function($alert){
                     return $alert->symptoms;
-                })->addIndexColumn()->toJson();
+                })
+                ->setRowId('diseaseId')
+                ->addIndexColumn()
+                ->toJson();
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;

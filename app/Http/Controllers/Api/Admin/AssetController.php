@@ -26,10 +26,11 @@ class AssetController extends Controller
             $assetQuery = $currentUser->assets()->with(['farm']);
 
             if($request->has('client') && $request->client === 'datatable'){
+                $assetQuery->select(["*", "assets.id as assetId"]);
                 return DataTables::eloquent($assetQuery)->editColumn('purchase_date', function($asset){
                     return $asset->purchase_date->toFormattedDateString();
-                })->addColumn('action', function(){})
-                ->rawColumns(['action'])
+                })
+                ->setRowId('assetId')
                 ->addIndexColumn()->toJson();
             }
 

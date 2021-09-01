@@ -32,7 +32,14 @@ class AnimalController extends Controller
             $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm']);
 
             if($request->has('client') && $request->client === 'datatable'){
-                return DataTables::eloquent($animalQuery)->addIndexColumn()->toJson();
+                $animalQuery->select(["*", "animals.id as animalId"]);
+                return DataTables::eloquent($animalQuery)
+                    ->editColumn('dob', function($animal){
+                        return $animal->dob->toFormattedDateString();
+                    })
+                    ->setRowId('animalId')
+                    ->addIndexColumn()
+                    ->toJson();
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;

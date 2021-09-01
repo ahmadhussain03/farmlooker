@@ -26,7 +26,11 @@ class VaccineRecordController extends Controller
             $vaccineRecordQuery->with(['animal']);
 
             if($request->has('client') && $request->client === 'datatable'){
-                return DataTables::eloquent($vaccineRecordQuery)->addIndexColumn()->toJson();
+                $vaccineRecordQuery->select(["*", "vaccine_records.id as recordId"]);
+                return DataTables::eloquent($vaccineRecordQuery)
+                    ->setRowId('recordId')
+                    ->addIndexColumn()
+                    ->toJson();
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
