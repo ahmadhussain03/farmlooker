@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Exceptions\Forbidden;
 use App\Models\Farm;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -42,7 +43,7 @@ class FarmController extends Controller
     {
         $data = $this->validate($request, [
             'location' => 'required|string|max:255',
-            'area_of_hector' => 'required|max:255'
+            'area_of_hector' => 'required|numeric'
         ]);
 
         $user = User::findOrFail(auth()->id());
@@ -65,9 +66,13 @@ class FarmController extends Controller
     {
         $farm = Farm::findOrFail($farm);
 
+        if(!$farm->admin()->where('users.id', auth()->id())->exists()){
+            throw new Forbidden();
+        }
+
         $data = $this->validate($request, [
-            'location' => 'nullable|string|max:255',
-            'area_of_hector' => 'nullable|max:255'
+            'location' => 'string|max:255',
+            'area_of_hector' => 'numeric|numeric'
         ]);
 
         $farm->update($data);
