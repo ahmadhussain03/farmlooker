@@ -14,6 +14,14 @@ class AuthControllerTest extends TestCase
 
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withHeaders([
+            'Accept' => 'application/json'
+        ]);
+    }
+
     /**
      * A basic feature test example.
      *
@@ -460,16 +468,96 @@ class AuthControllerTest extends TestCase
         });
     }
 
-    public function test_get_authenticated_user()
+    public function test_user_cannot_get_detail_without_token()
+    {
+        $response = $this->getJson("/api/admin/user");
+        $response->assertStatus(401);
+        $response->assertJson(function(AssertableJson $json){
+            $json
+                ->has('message')
+                ->where('message', 'Unauthenticated.')
+                ->where('code', 401)
+                ->has('data');
+        });
+
+    }
+
+    public function test_user_cannot_get_detail_unless_admin()
     {
         // $this->withoutExceptionHandling();
-        Sanctum::actingAs(
-            User::factory()->create()
+        $user = Sanctum::actingAs(
+            User::factory()->create(),
+            ['*']
         );
 
-        $response = $this->get('/api/admin/user');
+        $response = $this->getJson("/api/admin/user");
+        $response->assertStatus(403);
+        $response->assertJson(function(AssertableJson $json){
+            $json
+                ->has('message')
+                ->where('message', 'Forbidden.')
+                ->where('code', 403)
+                ->has('data');
+        });
 
-        dd($response->decodeResponseJson());
+    }
+
+    public function test_get_authenticated_user()
+    {
+        $user = Sanctum::actingAs(
+            User::factory()->create(['user_type' => 'admin']),
+            ['*']
+        );
+
+        $response = $this->getJson('/api/admin/user');
+
+        $response->assertStatus(200);
+        $response->assertJson(function(AssertableJson $json) use ($user){
+            $json
+                ->has('data')
+                ->has('data', function(AssertableJson $json) use ($user){
+                    $json
+                        ->where('id', $user['id'])
+                        ->where('first_name', $user->first_name)
+                        ->where('last_name', $user->last_name)
+                        ->where('experience', $user->experience)
+                        ->where('email', $user->email)
+                        ->where('phone_no', $user->phone_no)
+                        ->has('email_verified_at')
+                        ->where('farms', [])
+                        ->where('active_subscription', null)
+                        ->has('created_at')
+                        ->has('updated_at')
+                        ->missing('password')
+                        ->missing('remember_token');
+                })
+                ->has('code')
+                ->has('message')
+                ->where('code', 200);
+        });
+    }
+
+    public function test_user_cannot_logout_without_token()
+    {
+        $response = $this->postJson("/api/admin/logout");
+        $response->assertStatus(401);
+        $response->assertJson(function(AssertableJson $json){
+            $json
+                ->has('message')
+                ->where('message', 'Unauthenticated.')
+                ->where('code', 401)
+                ->has('data');
+        });
+    }
+
+    public function test_user_can_logout()
+    {
+        $user = Sanctum::actingAs(
+            User::factory()->create(['user_type' => 'admin']),
+            ['*']
+        );
+
+        $response = $this->postJson("/api/admin/logout");
         $response->assertOk();
     }
 
