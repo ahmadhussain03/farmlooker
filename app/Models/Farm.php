@@ -30,6 +30,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Farm whereLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Farm whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Worker[] $workers
+ * @property-read int|null $workers_count
  */
 class Farm extends Model
 {

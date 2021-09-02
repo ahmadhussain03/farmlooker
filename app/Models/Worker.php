@@ -35,6 +35,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Worker whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Worker whereUserId($value)
  * @mixin \Eloquent
+ * @property int $farm_id
+ * @property-read \App\Models\Farm $farm
+ * @method static \Illuminate\Database\Eloquent\Builder|Worker whereFarmId($value)
  */
 class Worker extends Model
 {

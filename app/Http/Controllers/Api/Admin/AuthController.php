@@ -26,71 +26,43 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-       try {
-           $this->validate($request, [
-               "email" => "required|email|max:255|unique:users",
-               "password" => "required|confirmed|min:6|max:255",
-               "first_name" => "required|string|max:255",
-               "last_name" => "required|string|max:255",
-               "phone_no" => "required|string|phone:AUTO,SA|max:20",
-               "experience" => "required|string",
-               "device_token" => "required|string|max:255",
-               "device_name" => "required|string|max:255"
-           ]);
+        $this->validate($request, [
+            "email" => "required|email|max:255|unique:users",
+            "password" => "required|confirmed|min:6|max:255",
+            "first_name" => "required|string|max:255",
+            "last_name" => "required|string|max:255",
+            "phone_no" => "required|string|phone:AUTO,SA|max:20",
+            "experience" => "required|string",
+            "device_token" => "required|string|max:255",
+            "device_name" => "required|string|max:255"
+        ]);
 
-           $user = User::create([
-               'first_name' => $request->first_name,
-               'last_name' => $request->last_name,
-               'phone_no' => $request->phone_no,
-               'email' => $request->email,
-               'experience' => $request->experience,
-               'password' => Hash::make($request->password)
-           ]);
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'phone_no' => $request->phone_no,
+            'email' => $request->email,
+            'experience' => $request->experience,
+            'password' => Hash::make($request->password)
+        ]);
 
-            $token = $user->createToken($request->device_name)->plainTextToken;
-            $user->device_token = $request->device_token;
-            $user->save();
+        $token = $user->createToken($request->device_name)->plainTextToken;
+        $user->device_token = $request->device_token;
+        $user->save();
 
-           return response()->json([
-               'code' => 200,
-               'message' => 'User Register Successfully',
-               'data' => ["user" => $user, "token" => $token]
-           ], Response::HTTP_OK);
-       } catch (ValidationException $exception){
-           return response()->json([
-               'code' => 422,
-               'message' => $exception->getMessage(),
-               'data' => $exception->errors()
-           ], Response::HTTP_UNPROCESSABLE_ENTITY);
-       } catch(\Exception $exception){
-           return response()->json([
-               'code' => 500,
-               'message' => $exception->getMessage(),
-               'data' => null
-           ], Response::HTTP_INTERNAL_SERVER_ERROR);
-       }
+        $user->load(['farms', 'activeSubscription']);
+
+        return response()->success(["user" => $user, "token" => $token], "User Register Successfully");
     }
 
     public function logout(Request $request)
     {
-        try {
-            $user = $request->user();
-            $user->currentAccessToken()->delete();
-            $user->device_token = null;
-            $user->save();
+        $user = $request->user();
+        $user->currentAccessToken()->delete();
+        $user->device_token = null;
+        $user->save();
 
-            return response()->json([
-                'code' => 200,
-                'message' => null,
-                'data' => null
-            ], Response::HTTP_OK);
-        } catch (\Exception $exception){
-            return response()->json([
-                'code' => 500,
-                'message' => $exception->getMessage(),
-                'data' => null
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        return response()->success();
     }
 
     /**
@@ -101,44 +73,26 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        try {
 
-            $this->validate($request, [
-                "email" => "required|email|max:255",
-                "password" => "required|min:6|max:255",
-                "device_token" => "required|string|max:255",
-                "device_name" => "required|string|max:255",
+        $this->validate($request, [
+            "email" => "required|email|max:255",
+            "password" => "required|min:6|max:255",
+            "device_token" => "required|string|max:255",
+            "device_name" => "required|string|max:255",
+        ]);
+
+        $user = User::with(['activeSubscription', 'farms'])->where('email', $request->email)->first();
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
             ]);
-
-            $user = User::with(['activeSubscription', 'farms'])->where('email', $request->email)->first();
-            if (! $user || ! Hash::check($request->password, $user->password)) {
-                throw ValidationException::withMessages([
-                    'email' => ['The provided credentials are incorrect.'],
-                ]);
-            }
-
-            $token = $user->createToken($request->device_name)->plainTextToken;
-            $user->device_token = $request->device_token;
-            $user->save();
-
-            return response()->json([
-                'code' => 200,
-                'message' => null,
-                'data' => ["user" => $user, "token" => $token]
-            ], Response::HTTP_OK);
-        } catch (ValidationException $exception){
-            return response()->json([
-                'code' => 422,
-                'message' => $exception->getMessage(),
-                'data' => $exception->errors()
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        } catch (\Exception $exception){
-            return response()->json([
-                'code' => 500,
-                'message' => $exception->getMessage(),
-                'data' => null
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        $token = $user->createToken($request->device_name)->plainTextToken;
+        $user->device_token = $request->device_token;
+        $user->save();
+
+        return response()->success(["user" => $user, "token" => $token], null);
     }
 
     /**
@@ -150,10 +104,6 @@ class AuthController extends Controller
     {
         $user = User::with(['activeSubscription', 'farms'])->findOrFail(auth()->id());
 
-        return response()->json([
-            'code' => 200,
-            'message' => null,
-            'data' => $user
-        ], Response::HTTP_OK);
+        return response()->success($user, null);
     }
 }
