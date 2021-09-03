@@ -29,7 +29,7 @@ class AnimalController extends Controller
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm']);
+            $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm'])->search();
 
             if($request->has('client') && $request->client === 'datatable'){
                 $animalQuery->select(["*", "animals.id as animalId"]);
