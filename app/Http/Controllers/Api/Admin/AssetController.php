@@ -36,7 +36,7 @@ class AssetController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $assets = $assetQuery->paginate($perPage);
+            $assets = $assetQuery->search()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

@@ -28,7 +28,7 @@ class FarmController extends Controller
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-        $farms = $farmsQuery->paginate($perPage);
+        $farms = $farmsQuery->search()->paginate($perPage);
 
         return response()->success($farms);
     }

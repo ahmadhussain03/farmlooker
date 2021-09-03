@@ -39,7 +39,7 @@ class TradingAnimalController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $tradingAnimals = $tradingAnimalQuery->paginate($perPage);
+            $tradingAnimals = $tradingAnimalQuery->search()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -38,13 +39,23 @@ use Illuminate\Database\Eloquent\Model;
  */
 class TradingAnimal extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $guarded = [];
 
     protected $casts = [
         'dob' => 'date',
         'dated' => 'date'
+    ];
+
+    public $searchableColumns = [
+        'type',
+        'price',
+        'dob',
+        'location',
+        'dated',
+        'phone',
+        'user_id'
     ];
 
     public function getImageAttribute($value)

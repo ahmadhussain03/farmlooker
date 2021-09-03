@@ -24,6 +24,8 @@ class CreateUsersTable extends Migration
             $table->string('experience')->nullable();
             $table->string('device_token')->nullable();
 
+            $table->string('image')->default('images/default.png');
+
             $table->foreignId('parent_id')->nullable()->constrained('users', 'id')->nullOnDelete();
 
             $table->rememberToken();

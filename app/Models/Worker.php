@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * App\Models\Worker
@@ -41,12 +42,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Worker extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $guarded = [];
 
     protected $casts = [
         'joining_date' => 'date'
+    ];
+
+    public $searchableColumns = [
+        'name',
+        'phone_no',
+        'address',
+        'pay',
+        'location',
+        'joining_date',
+        'duty',
+        'farm_id'
     ];
 
     public function farm(): BelongsTo

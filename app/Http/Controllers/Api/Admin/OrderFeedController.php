@@ -24,7 +24,7 @@ class OrderFeedController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $orderFeeds = $orderFeedQuery->paginate($perPage);
+            $orderFeeds = $orderFeedQuery->search()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

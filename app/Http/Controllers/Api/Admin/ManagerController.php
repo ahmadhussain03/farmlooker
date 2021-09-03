@@ -25,7 +25,7 @@ class ManagerController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $managers = $managerQuery->paginate($perPage);
+            $managers = $managerQuery->search()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

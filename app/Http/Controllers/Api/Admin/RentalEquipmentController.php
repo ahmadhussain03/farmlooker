@@ -36,7 +36,7 @@ class RentalEquipmentController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $rentalEquipments = $rentalEquipmentQuery->paginate($perPage);
+            $rentalEquipments = $rentalEquipmentQuery->search()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

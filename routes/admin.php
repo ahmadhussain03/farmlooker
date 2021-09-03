@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\WorkerController;
 use App\Http\Controllers\Api\Admin\ExpenseController;
 use App\Http\Controllers\Api\Admin\SummaryController;
 use App\Http\Controllers\Api\Admin\ManagerController;
+use App\Http\Controllers\Api\Admin\ProfileController;
 use App\Http\Controllers\Api\Admin\OrderFeedController;
 use App\Http\Controllers\Api\Admin\SubscriptionController;
 use App\Http\Controllers\Api\Admin\NotificationController;
@@ -47,6 +48,9 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
 
     //  User Detail Routes
     Route::get('/user', [AuthController::class, 'user']);
+
+    // Profile Update Route
+    Route::put('/profile', [ProfileController::class, 'update']);
 
     // User Notification Routes
     Route::get('notifications', [NotificationController::class, 'index']);

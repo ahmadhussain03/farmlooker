@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * App\Models\DiseaseAlert
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class DiseaseAlert extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $guarded = [];
 
@@ -42,6 +43,13 @@ class DiseaseAlert extends Model
      */
     protected $casts = [
         'symptoms' => 'array'
+    ];
+
+    public $searchableColumns = [
+        'description',
+        'symptoms',
+        'user_id',
+        'animal_id'
     ];
 
     public function getSymptomsAttribute($value)

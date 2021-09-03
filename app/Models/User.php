@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -58,7 +59,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, HasRelationships;
+    use HasFactory, Notifiable, HasApiTokens, HasRelationships, Searchable;
     /**
      * The attributes that are mass assignable.
      *
@@ -71,6 +72,7 @@ class User extends Authenticatable
         'password',
         'phone_no',
         'experience',
+        'image',
         'parent_id'
     ];
 
@@ -97,6 +99,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public $searchableColumns = [
+        'first_name',
+        'last_name',
+        'email',
+        'location',
+        'phone_no',
+        'experience',
+        'parent_id'
+    ];
+
      /**
      * Specifies the user's FCM token
      *
@@ -110,6 +122,11 @@ class User extends Authenticatable
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function getImageAttribute($value)
+    {
+        return asset($value);
     }
 
     public function animals()

@@ -68,7 +68,18 @@ class Animal extends Model
     public $searchableColumns = [
         'animal_id',
         'type',
-        'breed'
+        'breed',
+        'add_as',
+        'sex',
+        'dob',
+        'purchase_date',
+        'location',
+        'disease',
+        'price',
+        'previous_owner',
+        'male_breeder_id',
+        'female_breeder_id',
+        'farm_id'
     ];
 
     public function farm(): BelongsTo

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -37,12 +38,22 @@ use Illuminate\Database\Eloquent\Model;
  */
 class RentalEquipment extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $guarded = [];
 
     protected $casts = [
         'dated' => 'date'
+    ];
+
+    public $searchableColumns = [
+        'name',
+        'model',
+        'rent',
+        'location',
+        'dated',
+        'phone',
+        'user_id'
     ];
 
     public function getImageAttribute($value)

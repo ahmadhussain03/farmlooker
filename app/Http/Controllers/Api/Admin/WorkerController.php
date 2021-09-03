@@ -36,7 +36,7 @@ class WorkerController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $workers = $workerQuery->paginate($perPage);
+            $workers = $workerQuery->search()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

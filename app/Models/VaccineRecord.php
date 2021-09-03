@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,9 +35,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class VaccineRecord extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $guarded = [];
+
+    public $searchableColumns = [
+        'date',
+        'reason',
+        'name',
+        'animal_id',
+        'user_id'
+    ];
 
     public function animal(): BelongsTo
     {

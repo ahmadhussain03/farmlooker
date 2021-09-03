@@ -37,7 +37,7 @@ class DiseaseAlertController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $diseaseAlerts = $diseaseAlertQuery->paginate($perPage);
+            $diseaseAlerts = $diseaseAlertQuery->search()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

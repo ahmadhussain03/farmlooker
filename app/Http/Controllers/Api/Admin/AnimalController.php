@@ -29,7 +29,7 @@ class AnimalController extends Controller
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm'])->search();
+            $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm']);
 
             if($request->has('client') && $request->client === 'datatable'){
                 $animalQuery->select(["*", "animals.id as animalId"]);
@@ -44,7 +44,7 @@ class AnimalController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $animals = $animalQuery->paginate($perPage);
+            $animals = $animalQuery->search()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

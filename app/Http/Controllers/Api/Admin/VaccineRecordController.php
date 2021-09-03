@@ -35,7 +35,7 @@ class VaccineRecordController extends Controller
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $vaccineRecords = $vaccineRecordQuery->paginate($perPage);
+            $vaccineRecords = $vaccineRecordQuery->search()->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
