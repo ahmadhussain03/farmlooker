@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\Forbidden;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,7 @@ class Admin
     public function handle(Request $request, Closure $next)
     {
         if(auth()->check() && auth()->user()->user_type != 'admin'){
-            abort(401);
+            throw new Forbidden();
         }
 
         return $next($request);

@@ -26,6 +26,11 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Asset whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Asset whereUserId($value)
  * @mixin \Eloquent
+ * @property int $farm_id
+ * @property string $location
+ * @property-read \App\Models\Farm $farm
+ * @method static \Illuminate\Database\Eloquent\Builder|Asset whereFarmId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Asset whereLocation($value)
  */
 class Asset extends Model
 {

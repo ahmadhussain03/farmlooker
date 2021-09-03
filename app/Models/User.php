@@ -82,7 +82,10 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'pivot'
+        'pivot',
+        'device_token',
+        'parent_id',
+        'user_type'
     ];
 
     /**

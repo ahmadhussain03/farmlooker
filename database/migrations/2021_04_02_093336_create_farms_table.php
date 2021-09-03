@@ -17,7 +17,7 @@ class CreateFarmsTable extends Migration
             $table->id();
 
             $table->string('location');
-            $table->string('area_of_hector');
+            $table->double('area_of_hector');
 
             $table->timestamps();
         });

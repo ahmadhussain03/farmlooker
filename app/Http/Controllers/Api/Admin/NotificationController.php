@@ -15,6 +15,7 @@ class NotificationController extends Controller
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
             $user = User::findOrFail(auth()->id());
+
             $notifications = $user->notifications()->paginate($perPage);
 
             return response()->json([

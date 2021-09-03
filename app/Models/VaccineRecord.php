@@ -29,6 +29,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|VaccineRecord whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|VaccineRecord whereUserId($value)
  * @mixin \Eloquent
+ * @property-read \App\Models\Animal $animal
+ * @property-read \App\Models\User $user
  */
 class VaccineRecord extends Model
 {
