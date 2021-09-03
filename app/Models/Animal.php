@@ -65,6 +65,12 @@ class Animal extends Model
       'purchase_date' => 'date'
     ];
 
+    public $searchableColumns = [
+        'animal_id',
+        'type',
+        'breed'
+    ];
+
     public function farm(): BelongsTo
     {
         return $this->belongsTo(Farm::class);
