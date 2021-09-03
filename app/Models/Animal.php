@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -55,13 +56,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Animal extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $guarded = [];
 
     protected $casts = [
       'dob' => 'date',
       'purchase_date' => 'date'
+    ];
+
+    public $searchableColumns = [
+        'animal_id',
+        'type',
+        'breed'
     ];
 
     public function farm(): BelongsTo
