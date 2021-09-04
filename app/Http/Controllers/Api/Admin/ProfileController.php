@@ -40,10 +40,8 @@ class ProfileController extends Controller
             }
         }
 
-        $exists = Storage::disk('public')->exists($user->getRawOriginal('image'));
-
         $user->update($validatedData);
 
-        return response()->success(['user' => $user, 'exists' => $exists]);
+        return response()->success($user);
     }
 }
