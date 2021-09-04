@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Storage;
 
 /**
  * App\Models\User
@@ -126,7 +127,7 @@ class User extends Authenticatable
 
     public function getImageAttribute($value)
     {
-        return asset($value);
+        return asset(Storage::url($value));
     }
 
     public function animals()

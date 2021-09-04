@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Storage;
 
 class ProfileController extends Controller
 {
@@ -31,12 +32,18 @@ class ProfileController extends Controller
         }
 
         if(isset($validatedData['image'])){
-            $validatedData['image'] = $validatedData['image']->getClientOriginalName();
+            $image = $request->file('image')->storePublicly('profile', 'public');
+            $validatedData['image'] = $image;
+
+            if($user->image != 'images/default.png' && Storage::disk('public')->exists($user->getRawOriginal('image'))){
+                Storage::disk('public')->delete($user->getRawOriginal('image'));
+            }
         }
 
+        $exists = Storage::disk('public')->exists($user->getRawOriginal('image'));
 
         $user->update($validatedData);
 
-        return response()->success($user);
+        return response()->success(['user' => $user, 'exists' => $exists]);
     }
 }

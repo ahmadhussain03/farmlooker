@@ -50,6 +50,8 @@ class AuthController extends Controller
         $user->device_token = $request->device_token;
         $user->save();
 
+        $user->refresh();
+
         $user->load(['farms', 'activeSubscription']);
 
         return response()->success(["user" => $user, "token" => $token], "User Register Successfully");

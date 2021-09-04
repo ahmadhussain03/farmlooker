@@ -50,7 +50,7 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     Route::get('/user', [AuthController::class, 'user']);
 
     // Profile Update Route
-    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile', [ProfileController::class, 'update']);
 
     // User Notification Routes
     Route::get('notifications', [NotificationController::class, 'index']);
