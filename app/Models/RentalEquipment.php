@@ -60,4 +60,9 @@ class RentalEquipment extends Model
     {
         return asset($value);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

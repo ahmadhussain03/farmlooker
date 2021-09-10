@@ -17,7 +17,7 @@ class HomeRentalEquipmentController extends Controller
     public function index(Request $request)
     {
         try {
-            $rentalEquipmentQuery = RentalEquipment::query();
+            $rentalEquipmentQuery = RentalEquipment::query()->with(['user']);
 
             if($request->has('name')){
                 $rentalEquipmentQuery->where('name', 'like', '%' . $request->name . '%');

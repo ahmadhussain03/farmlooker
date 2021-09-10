@@ -100,6 +100,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $appends = ['fullName'];
+
     public $searchableColumns = [
         'first_name',
         'last_name',
