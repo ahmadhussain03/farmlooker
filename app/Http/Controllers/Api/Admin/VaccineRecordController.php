@@ -6,6 +6,7 @@ use DataTables;
 use Illuminate\Http\Request;
 use App\Models\VaccineRecord;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -30,6 +31,10 @@ class VaccineRecordController extends Controller
                 return DataTables::eloquent($vaccineRecordQuery)
                     ->setRowId('recordId')
                     ->addIndexColumn()
+                    ->editColumn('certificate_image', function($vaccineRecord){
+                        return "<img class='h-16 w-full p-1 border text-center rounded shadow' src=". asset($vaccineRecord->certificate_image) .">";
+                    })
+                    ->rawColumns(['certificate_image'])
                     ->toJson();
             }
 
@@ -64,14 +69,19 @@ class VaccineRecordController extends Controller
                 'animal_id' => 'required|numeric',
                 'name' => 'required|string|max:255',
                 'reason' => 'required|string',
-                'date' => 'required|date'
+                'date' => 'required|date',
+                'certificate_image' => 'required|mimes:jpg,jpeg,png,bmp'
             ]);
 
             /** @var App\Models\User */
             $currentUser = auth()->user();
             $animal = $currentUser->animals()->where('animals.id', $request->animal_id)->firstOrFail();
+
+            $image = $request->file('certificate_image')->storePublicly('vaccine_certificate', 'public');
+
             $vaccineRecord = VaccineRecord::create(array_merge($data, [
-                'user_id' => auth()->id()
+                'user_id' => auth()->id(),
+                'certificate_image' => $image
             ]));
 
             $vaccineRecord->load(['animal']);
@@ -145,14 +155,24 @@ class VaccineRecordController extends Controller
             $vaccineRecord = $currentUser->vaccineRecords()->where('vaccine_records.id', $vaccine_record)->firstOrFail();
 
             $data = $this->validate($request, [
-                'animal_id' => 'nullable|numeric',
-                'name' => 'nullable|string|max:255',
-                'reason' => 'nullable|string',
-                'date' => 'nullable|date'
+                'animal_id' => 'numeric',
+                'name' => 'string|max:255',
+                'reason' => 'string',
+                'date' => 'date',
+                'certificate_image' => 'sometimes|mimes:jpg,jpeg,png,bmp'
             ]);
 
             if($request->has('animal_id') && $request->animal_id != $vaccineRecord->animal_id){
                 $currentUser->animals()->where('animals.id', $request->animal_id)->firstOrFail();
+            }
+
+            if(isset($data['certificate_image'])){
+                $image = $request->file('certificate_image')->storePublicly('vaccine_certificate', 'public');
+                $data['certificate_image'] = $image;
+
+                if(Storage::disk('public')->exists($vaccineRecord->getRawOriginal('certificate_image'))){
+                    Storage::disk('public')->delete($vaccineRecord->getRawOriginal('image'));
+                }
             }
 
             $vaccineRecord->update($data);

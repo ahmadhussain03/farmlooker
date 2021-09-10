@@ -23,6 +23,8 @@ class CreateVaccineRecordsTable extends Migration
             $table->text('reason');
             $table->date('date');
 
+            $table->string('certificate_image');
+
             $table->timestamps();
         });
     }

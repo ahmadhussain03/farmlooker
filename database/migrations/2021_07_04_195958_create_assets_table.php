@@ -23,6 +23,8 @@ class CreateAssetsTable extends Migration
             $table->double('price');
             $table->string('location');
 
+            $table->string('image')->nullable();
+
             $table->timestamps();
         });
     }

@@ -144,7 +144,6 @@ class AnimalController extends Controller
                 'sex' => 'required|in:male,female',
                 'dob' => 'required',
                 'purchase_date' => 'nullable|date',
-                'location' => 'required',
                 'disease' => 'required|in:healthy,sick',
                 'price' => 'nullable|numeric',
                 'farm_id' => 'required|integer|min:1',
@@ -192,19 +191,18 @@ class AnimalController extends Controller
             $animal = $currentUser->animals()->where('animals.id', $animal)->firstOrFail();
 
             $this->validate($request, [
-                'animal_id' => 'nullable',
-                'type' => 'nullable|string|max:255',
-                'breed' => 'nullable|string|max:255',
-                'add_as' => 'nullable|in:purchased,calved',
-                'male_breeder_id' => 'nullable|integer',
-                'female_breeder_id' => 'nullable|integer',
-                'sex' => 'nullable|in:male,female',
-                'dob' => 'nullable',
-                'purchase_date' => 'nullable|date',
-                'location' => 'nullable',
-                'disease' => 'nullable|in:healthy,sick',
-                'price' => 'nullable|numeric',
-                'previous_owner' => 'nullable|required_if:add_as,purchased'
+                'animal_id' => 'integer',
+                'type' => 'string|max:255',
+                'breed' => 'string|max:255',
+                'add_as' => 'in:purchased,calved',
+                'male_breeder_id' => 'integer',
+                'female_breeder_id' => 'integer',
+                'sex' => 'in:male,female',
+                'dob' => 'string',
+                'purchase_date' => 'date',
+                'disease' => 'in:healthy,sick',
+                'price' => 'numeric',
+                'previous_owner' => 'required_if:add_as,purchased'
             ]);
 
             if($request->farm_id && $request->farm_id != $animal->farm_id){

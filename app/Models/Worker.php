@@ -47,7 +47,7 @@ class Worker extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'joining_date' => 'date'
+        'joining_date' => 'date:Y-m-d'
     ];
 
     public $searchableColumns = [

@@ -24,6 +24,7 @@ class TradingAnimalController extends Controller
 
             if($request->has('client') && $request->client === 'datatable'){
                 return DataTables::eloquent($tradingAnimalQuery)
+                        ->setRowId('id')
                         ->editColumn('image', function($tradingAnimal){
                             return "<img class='h-16 w-full p-1 border text-center rounded shadow ' src=". asset($tradingAnimal->image) .">";
                         })

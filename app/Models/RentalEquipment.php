@@ -43,7 +43,7 @@ class RentalEquipment extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'dated' => 'date'
+        'dated' => 'date:Y-m-d'
     ];
 
     public $searchableColumns = [

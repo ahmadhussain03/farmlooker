@@ -70,7 +70,8 @@ class WorkerController extends Controller
                 'location' => 'required|string',
                 'joining_date' => 'required|date',
                 'duty' => 'required|string|max:255',
-                'farm_id' => 'required|integer|min:1'
+                'farm_id' => 'required|integer|min:1',
+                'id_or_passport' => 'required|max:255'
             ]);
 
             /** @var App\Models\User */
@@ -148,14 +149,15 @@ class WorkerController extends Controller
             $worker = $currentUser->workers()->where('workers.id', $worker)->firstOrFail();
 
             $data = $this->validate($request, [
-                'name' => 'nullable|string|max:255',
-                'phone_no' => 'nullable|string|phone:AUTO,SA|max:20',
-                'address' => 'nullable|string',
-                'pay' => 'nullable|numeric',
-                'location' => 'nullable|string',
-                'joining_date' => 'nullable|date',
-                'duty' => 'nullable|string|max:255',
-                'farm_id' => 'nullable|integer|min:1'
+                'name' => 'string|max:255',
+                'phone_no' => 'string|phone:AUTO,SA|max:20',
+                'address' => 'string',
+                'pay' => 'numeric',
+                'location' => 'string',
+                'joining_date' => 'date',
+                'duty' => 'string|max:255',
+                'farm_id' => 'integer|min:1',
+                'id_or_passport' => 'string|max:255'
             ]);
 
             if($request->farm_id && $request->farm_id != $worker->farm_id){

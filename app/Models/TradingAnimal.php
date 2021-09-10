@@ -44,8 +44,8 @@ class TradingAnimal extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'dob' => 'date',
-        'dated' => 'date'
+        'dob' => 'date:Y-m-d',
+        'dated' => 'date:Y-m-d'
     ];
 
     public $searchableColumns = [

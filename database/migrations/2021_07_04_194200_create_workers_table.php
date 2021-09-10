@@ -23,6 +23,7 @@ class CreateWorkersTable extends Migration
             $table->string('location');
             $table->date('joining_date');
             $table->string('duty');
+            $table->string('id_or_passport');
 
             $table->foreignId('farm_id')->constrained()->onDelete('CASCADE');
 

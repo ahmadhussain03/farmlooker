@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use DataTables;
+use Carbon\Carbon;
 use App\Models\Asset;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -31,6 +32,14 @@ class AssetController extends Controller
                     return $asset->purchase_date->toFormattedDateString();
                 })
                 ->setRowId('assetId')
+                ->editColumn('image', function($asset){
+                    if($asset->image){
+                        return "<img class='h-16 w-full p-1 border text-center rounded shadow' src=". asset($asset->image) .">";
+                    } else {
+                        return "";
+                    }
+                })
+                ->rawColumns(['image'])
                 ->addIndexColumn()->toJson();
             }
 
@@ -67,12 +76,19 @@ class AssetController extends Controller
                 'price' => 'required|numeric',
                 'purchase_date' => 'required|date',
                 'location' => 'required|string|max:255',
-                'farm_id' => 'required|integer|min:1'
+                'farm_id' => 'required|integer|min:1',
+                'image' => 'sometimes|mimes:jpg,jpeg,png,bmp'
             ]);
 
             /** @var App\Models\User */
             $currentUser = auth()->user();
             $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
+
+            if(isset($data['image'])){
+                $image = $request->file('image')->storePublicly('assets', 'public');
+                $data['image'] = $image;
+            }
+
             $asset = Asset::create($data);
 
             return response()->json([
@@ -145,15 +161,25 @@ class AssetController extends Controller
 
 
             $data = $this->validate($request, [
-                'type' => 'nullable|string|max:255',
-                'price' => 'nullable|numeric',
-                'purchase_date' => 'nullable|date',
-                'location' => 'nullable|string|max:255',
-                'farm_id' => 'nullable|integer|min:1'
+                'type' => 'string|max:255',
+                'price' => 'numeric',
+                'purchase_date' => 'date',
+                'location' => 'string|max:255',
+                'farm_id' => 'integer|min:1',
+                'image' => 'sometimes|mimes:jpg,jpeg,png,bmp'
             ]);
 
             if($request->farm_id && $request->farm_id != $asset->farm_id){
                 $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
+            }
+
+            if(isset($data['image'])){
+                $image = $request->file('image')->storePublicly('assets', 'public');
+                $data['image'] = $image;
+
+                if(Storage::disk('public')->exists($asset->getRawOriginal('image'))){
+                    Storage::disk('public')->delete($asset->getRawOriginal('image'));
+                }
             }
 
             $asset->update($data);

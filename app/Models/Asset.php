@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
@@ -40,7 +41,7 @@ class Asset extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'purchase_date' => 'date'
+        'purchase_date' => 'date:Y-m-d'
     ];
 
     public $searchableColumns = [
@@ -50,6 +51,11 @@ class Asset extends Model
         'location',
         'farm_id'
     ];
+
+    public function getImageAttribute($value)
+    {
+        return asset(Storage::url($value));
+    }
 
     public function farm()
     {

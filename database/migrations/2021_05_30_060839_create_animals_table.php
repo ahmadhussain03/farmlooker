@@ -23,7 +23,6 @@ class CreateAnimalsTable extends Migration
             $table->string('sex');
             $table->date('dob');
             $table->date('purchase_date')->nullable();
-            $table->string('location');
             $table->enum('disease', ['healthy', 'sick']);
             $table->double('price')->nullable();
             $table->string('previous_owner')->nullable();

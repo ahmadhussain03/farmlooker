@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use App\Traits\Searchable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * App\Models\VaccineRecord
@@ -46,6 +47,11 @@ class VaccineRecord extends Model
         'animal_id',
         'user_id'
     ];
+
+    public function getCertificateImageAttribute($value)
+    {
+        return asset(Storage::url($value));
+    }
 
     public function animal(): BelongsTo
     {

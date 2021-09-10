@@ -61,8 +61,8 @@ class Animal extends Model
     protected $guarded = [];
 
     protected $casts = [
-      'dob' => 'date',
-      'purchase_date' => 'date'
+      'dob' => 'date:Y-m-d',
+      'purchase_date' => 'date:Y-m-d'
     ];
 
     public $searchableColumns = [

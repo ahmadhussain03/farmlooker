@@ -24,6 +24,7 @@ class RentalEquipmentController extends Controller
 
             if($request->has('client') && $request->client === 'datatable'){
                 return DataTables::eloquent($rentalEquipmentQuery)
+                        ->setRowId('id')
                         ->editColumn('image', function($rentalEquipment){
                             return "<img class='h-16 w-full p-1 border text-center rounded shadow ' src=". asset($rentalEquipment->image) .">";
                         })
