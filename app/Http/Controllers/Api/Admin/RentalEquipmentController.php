@@ -26,7 +26,7 @@ class RentalEquipmentController extends Controller
                 return DataTables::eloquent($rentalEquipmentQuery)
                         ->setRowId('id')
                         ->editColumn('image', function($rentalEquipment){
-                            return "<img class='h-16 w-full p-1 border text-center rounded shadow ' src=". asset($rentalEquipment->image) .">";
+                            return "<div class='aspect-w-16 aspect-h-16'><img class='object-center object-contain text-center rounded ' src=". asset($rentalEquipment->image) ."></div>";
                         })
                         ->editColumn('dated', function($rentalEquipment){
                             return $rentalEquipment->dated->toFormattedDateString();

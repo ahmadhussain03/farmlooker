@@ -26,7 +26,7 @@ class TradingAnimalController extends Controller
                 return DataTables::eloquent($tradingAnimalQuery)
                         ->setRowId('id')
                         ->editColumn('image', function($tradingAnimal){
-                            return "<img class='h-16 w-full p-1 border text-center rounded shadow ' src=". asset($tradingAnimal->image) .">";
+                            return "<div class='aspect-w-16 aspect-h-10'><img class='object-center object-contain border text-center rounded shadow ' src=". asset($tradingAnimal->image) ."></div>";
                         })
                         ->editColumn('dob', function($tradingAnimal){
                             return $tradingAnimal->dob->toFormattedDateString();

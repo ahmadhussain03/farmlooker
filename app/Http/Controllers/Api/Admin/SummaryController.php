@@ -26,11 +26,14 @@ class SummaryController extends Controller
             /** @var App\Models\User */
             $currentUser = auth()->user();
             $animalSummary = $currentUser->animals()->select(['animals.type', DB::raw('COUNT(animals.type) as count')])->groupBy(['animals.type', 'farm_user.user_id'])->get();
+            $animalSexSummary = $currentUser->animals()->select(['animals.sex', DB::raw('COUNT(animals.sex) as count')])->groupBy(['animals.sex', 'farm_user.user_id'])->get();
+            $sick = $currentUser->animals()->select(['animals.disease', DB::raw('COUNT(animals.disease) as count')])->where('animals.disease', 'sick')->groupBy(['animals.disease', 'farm_user.user_id'])->first();
+            $vaccinated = $currentUser->vaccineRecords()->select(['vaccine_records.animal_id', DB::raw('COUNT(vaccine_records.animal_id) as count')])->groupBy(['vaccine_records.animal_id', 'farm_user.user_id'])->count();
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => $animalSummary
+                'data' => ['summary' => $animalSummary, 'health_summary' => ['sex' => $animalSexSummary, 'vaccinated' => $vaccinated, 'sick' => $sick]]
             ]);
         } catch (\Exception $exception){
             return response()->json([
