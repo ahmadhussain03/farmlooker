@@ -42,6 +42,10 @@ class AnimalController extends Controller
                     ->toJson();
             }
 
+            if($request->has('sex')){
+                $animalQuery->where('sex', $request->sex);
+            }
+
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
             $animals = $animalQuery->search()->paginate($perPage);
@@ -99,12 +103,12 @@ class AnimalController extends Controller
      * @param $animal
      * @return JsonResponse
      */
-    public function tree($animal): JsonResponse
+    public function tree($id): JsonResponse
     {
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $animal = $currentUser->animals()->with(['femaleParentTree', 'maleParentTree'])->where('animals.id', $animal)->firstOrFail();
+            $animal = $currentUser->animals()->with(['femaleParentTree', 'maleParentTree'])->where('animals.id', $id)->firstOrFail();
             return response()->json([
                 'code' => 200,
                 'message' => null,
