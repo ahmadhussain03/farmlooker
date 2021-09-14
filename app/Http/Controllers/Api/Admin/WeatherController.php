@@ -18,7 +18,7 @@ class WeatherController extends Controller
 
     public function index()
     {
-        $location = Location::get();
+        $location = Location::get(request()->ip());
 
         $weather = $this->weather->getCurrentByCord($location->latitude, $location->longitude);
 
