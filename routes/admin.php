@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Admin\ExpenseController;
 use App\Http\Controllers\Api\Admin\SummaryController;
 use App\Http\Controllers\Api\Admin\ManagerController;
 use App\Http\Controllers\Api\Admin\ProfileController;
+use App\Http\Controllers\Api\Admin\WeatherController;
 use App\Http\Controllers\Api\Admin\OrderFeedController;
 use App\Http\Controllers\Api\Admin\SubscriptionController;
 use App\Http\Controllers\Api\Admin\NotificationController;
@@ -89,6 +90,9 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
 
     // Manager Routes
     Route::apiResource('manager', ManagerController::class);
+
+    // Weather Route
+    Route::apiResource('weather', WeatherController::class)->only(['index']);
 
     // Home Routes
     Route::prefix('home')->group(function () {
