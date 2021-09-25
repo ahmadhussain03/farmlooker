@@ -20,8 +20,12 @@ class WeatherController extends Controller
     {
         $location = Location::get(request()->ip());
 
-        $weather = $this->weather->getCurrentByCord($location->latitude, $location->longitude);
+        if($location){
+            $weather = $this->weather->getCurrentByCord($location->latitude, $location->longitude);
+            return response()->json($weather);
+        } else {
+            return response()->isNotFound();
+        }
 
-        return response()->json($weather);
     }
 }

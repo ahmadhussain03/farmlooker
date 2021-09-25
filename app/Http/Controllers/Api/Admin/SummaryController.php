@@ -29,11 +29,16 @@ class SummaryController extends Controller
             $animalSexSummary = $currentUser->animals()->select(['animals.sex', DB::raw('COUNT(animals.sex) as count')])->groupBy(['animals.sex', 'farm_user.user_id'])->get();
             $sick = $currentUser->animals()->select(['animals.disease', DB::raw('COUNT(animals.disease) as count')])->where('animals.disease', 'sick')->groupBy(['animals.disease', 'farm_user.user_id'])->first();
             $vaccinated = $currentUser->vaccineRecords()->select(['vaccine_records.animal_id', DB::raw('COUNT(vaccine_records.animal_id) as count')])->groupBy(['vaccine_records.animal_id', 'farm_user.user_id'])->count();
+            $workerCount = $currentUser->workers()->count();
+            $assetsCount = $currentUser->assets()->count();
+            $rentalEquipmentCount = $currentUser->rentalEquipments()->count();
+            $tradingAnimalCount = $currentUser->tradingAnimals()->count();
+            $liveAdsCount = $tradingAnimalCount + $rentalEquipmentCount;
 
             return response()->json([
                 'code' => 200,
                 'message' => null,
-                'data' => ['summary' => $animalSummary, 'health_summary' => ['sex' => $animalSexSummary, 'vaccinated' => $vaccinated, 'sick' => $sick]]
+                'data' => ['summary' => $animalSummary, 'worker' => $workerCount, 'assets' => $assetsCount, 'rental_equipment' => $rentalEquipmentCount, 'live_ads' => $liveAdsCount, 'health_summary' => ['sex' => $animalSexSummary, 'vaccinated' => $vaccinated, 'sick' => $sick]]
             ]);
         } catch (\Exception $exception){
             return response()->json([

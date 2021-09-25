@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Exceptions\Forbidden;
+use DataTables;
 use App\Models\Farm;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Exceptions\Forbidden;
 use App\Http\Controllers\Controller;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class FarmController extends Controller
 {
@@ -25,6 +23,14 @@ class FarmController extends Controller
         $authUser = User::findOrFail(auth()->id());
 
         $farmsQuery = $authUser->farms();
+
+        if($request->has('client') && $request->client === 'datatable'){
+            $farmsQuery->select(["*", "farms.id as farmId"]);
+            return DataTables::eloquent($farmsQuery)
+                ->setRowId('farmId')
+                ->addIndexColumn()
+                ->toJson();
+        }
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
