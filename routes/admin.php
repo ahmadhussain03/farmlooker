@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Admin\OrderFeedController;
 use App\Http\Controllers\Api\Admin\SubscriptionController;
 use App\Http\Controllers\Api\Admin\NotificationController;
 use App\Http\Controllers\Api\Admin\DiseaseAlertController;
+use App\Http\Controllers\Api\Admin\ExpenseChartController;
 use App\Http\Controllers\Api\Admin\TradingAnimalController;
 use App\Http\Controllers\Api\Admin\VaccineRecordController;
 use App\Http\Controllers\Api\Admin\RentalEquipmentController;
@@ -104,5 +105,8 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
 
         // Total Expense
         Route::get('expense/total', [ExpenseController::class, 'show']);
+
+        // Expense Chart
+        Route::get('expense_chart', [ExpenseChartController::class, 'index']);
     });
 });
