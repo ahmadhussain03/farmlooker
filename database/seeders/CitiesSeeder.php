@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\City;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CitiesSeeder extends Seeder
 {
@@ -15,7 +17,8 @@ class CitiesSeeder extends Seeder
     public function run()
     {
         //
- DB::table('cities')->delete();
+        Schema::disableForeignKeyConstraints();
+        City::query()->truncate();
 $cities = array(
 array('name' => "Bombuflat",'state_id' => 1),
 array('name' => "Garacharma",'state_id' => 1),
@@ -48398,5 +48401,6 @@ array('name' => "Ravenswood",'state_id' => 3976),
 array('name' => "Summersville",'state_id' => 3976),
 		);
         DB::table('cities')->insert($cities8);
+        Schema::enableForeignKeyConstraints();
     }
 }

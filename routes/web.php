@@ -7,6 +7,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SinglePageController;
 use App\Http\Controllers\NotificationController;
+use App\Models\City;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,10 @@ use App\Http\Controllers\NotificationController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/test', function(){
+    dd(City::where('state_id', 6844)->count());
+});
 
 Route::get('subscription/success', [PaymentController::class, 'success'])->name('subscription.success');
 Route::get('subscription/cancel', [PaymentController::class, 'cancel'])->name('subscription.cancel');

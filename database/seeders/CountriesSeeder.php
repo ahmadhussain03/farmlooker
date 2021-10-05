@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Country;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Schema;
 
 class CountriesSeeder extends Seeder
 {
@@ -14,7 +16,8 @@ class CountriesSeeder extends Seeder
 */
 public function run()
 {
-	DB::table('countries')->delete();
+    Schema::disableForeignKeyConstraints();
+    Country::query()->truncate();
 	$countries = array(
 		array('id' => 1,'code' => 'AF' ,'name' => "Afghanistan",'phonecode' => 93),
 		array('id' => 2,'code' => 'AL' ,'name' => "Albania",'phonecode' => 355),
@@ -264,5 +267,6 @@ public function run()
 		array('id' => 246,'code' => 'ZW','name' => "Zimbabwe",'phonecode' => 263),
 		);
 		DB::table('countries')->insert($countries);
+        Schema::enableForeignKeyConstraints();
 	}
 }

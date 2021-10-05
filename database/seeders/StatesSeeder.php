@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\State;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class StatesSeeder extends Seeder
 {
@@ -14,8 +16,8 @@ class StatesSeeder extends Seeder
 */
 public function run()
 {
-//
-	DB::table('states')->delete();
+    Schema::disableForeignKeyConstraints();
+    State::query()->truncate();
 	$states = array(
 		array('name' => "Andaman and Nicobar Islands",'country_id' => 101),
 		array('name' => "Andhra Pradesh",'country_id' => 101),
@@ -4140,5 +4142,6 @@ public function run()
 		array('name' => "Midlands",'country_id' => 246)
 		);
 		DB::table('states')->insert($states);
+        Schema::enableForeignKeyConstraints();
     }
 }
