@@ -20,7 +20,7 @@ class ProfileController extends Controller
             "password" => "confirmed|min:6|max:255",
             "first_name" => "string|max:255",
             "last_name" => "string|max:255",
-            "phone_no" => "string|phone:AUTO,SA|max:20",
+            "phone_no" => "string|max:20",
             "experience" => "string",
             "device_token" => "string|max:255",
             "device_name" => "string|max:255",

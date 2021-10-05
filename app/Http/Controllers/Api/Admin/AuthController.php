@@ -9,8 +9,8 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\RegisterRequest;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class AuthController
@@ -31,8 +31,8 @@ class AuthController extends Controller
             "password" => "required|confirmed|min:6|max:255",
             "first_name" => "required|string|max:255",
             "last_name" => "required|string|max:255",
-            "phone_no" => "required|string|phone:AUTO,SA|max:20",
-            "experience" => "required|string",
+            "phone_no" => "required|string|max:20",
+            "experience" => "required|numeric",
             "device_token" => "required|string|max:255",
             "device_name" => "required|string|max:255"
         ]);
@@ -46,13 +46,15 @@ class AuthController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         $token = $user->createToken($request->device_name)->plainTextToken;
         $user->device_token = $request->device_token;
         $user->save();
 
         $user->refresh();
 
-        $user->load(['farms', 'activeSubscription']);
+        $user->load(['farms.city.state.country', 'activeSubscription']);
 
         return response()->success(["user" => $user, "token" => $token], "User Register Successfully");
     }
@@ -83,7 +85,7 @@ class AuthController extends Controller
             "device_name" => "required|string|max:255",
         ]);
 
-        $user = User::with(['activeSubscription', 'farms'])->where('email', $request->email)->first();
+        $user = User::with(['activeSubscription', 'farms.city.state.country'])->where('email', $request->email)->first();
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
@@ -104,7 +106,7 @@ class AuthController extends Controller
      */
     public function user(): JsonResponse
     {
-        $user = User::with(['activeSubscription', 'farms'])->findOrFail(auth()->id());
+        $user = User::with(['activeSubscription', 'farms.city.state.country'])->findOrFail(auth()->id());
 
         return response()->success($user, null);
     }

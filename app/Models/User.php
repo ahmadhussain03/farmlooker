@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\EmailVerification;
 use App\Traits\Searchable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -10,6 +11,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Storage;
+use Str;
 
 /**
  * App\Models\User
@@ -58,7 +60,7 @@ use Storage;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUserType($value)
  * @mixin \Eloquent
  */
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, HasApiTokens, HasRelationships, Searchable;
     /**
@@ -130,6 +132,24 @@ class User extends Authenticatable
     public function getImageAttribute($value)
     {
         return asset(Storage::url($value));
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $verificationCode = Str::random(6);
+
+        if($code = $this->verificationCode()->first()){
+            $code->delete();
+        }
+
+        $this->verificationCode()->create(['code' => $verificationCode]);
+
+        $this->notify(new EmailVerification($verificationCode));
+    }
+
+    public function verificationCode()
+    {
+        return $this->hasOne(UserEmailVerificationCode::class);
     }
 
     public function animals()

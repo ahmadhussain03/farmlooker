@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateWorkersTable extends Migration
+class CreateCitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,10 @@ class CreateWorkersTable extends Migration
      */
     public function up()
     {
-        Schema::create('workers', function (Blueprint $table) {
+        Schema::create('cities', function (Blueprint $table) {
             $table->id();
-
             $table->string('name');
-            $table->string('phone_no');
-            $table->text('address');
-            $table->double('pay');
-            $table->date('joining_date');
-            $table->string('duty');
-            $table->string('id_or_passport');
-
-            $table->foreignId('farm_id')->constrained()->onDelete('CASCADE');
-
+            $table->unsignedBigInteger('state_id');
             $table->timestamps();
         });
     }
@@ -37,6 +28,6 @@ class CreateWorkersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('workers');
+        Schema::dropIfExists('cities');
     }
 }

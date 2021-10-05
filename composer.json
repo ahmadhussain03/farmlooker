@@ -20,6 +20,7 @@
         "propaganistas/laravel-phone": "^4.3",
         "rakibdevs/openweather-laravel-api": "^1.5",
         "staudenmeir/eloquent-has-many-deep": "^1.13",
+        "staudenmeir/belongs-to-through":"^2.5",
         "stevebauman/location": "^6.2",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
@@ -67,7 +68,9 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "disable-tls": true,
+        "secure-http": false
     },
     "minimum-stability": "dev",
     "prefer-stable": true

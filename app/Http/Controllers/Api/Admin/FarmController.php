@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Exceptions\Forbidden;
 use App\Http\Controllers\Controller;
+use App\Models\City;
 
 class FarmController extends Controller
 {
@@ -22,7 +23,7 @@ class FarmController extends Controller
 
         $authUser = User::findOrFail(auth()->id());
 
-        $farmsQuery = $authUser->farms();
+        $farmsQuery = $authUser->farms()->with(['city']);
 
         if($request->has('client') && $request->client === 'datatable'){
             $farmsQuery->select(["*", "farms.id as farmId"]);
@@ -48,9 +49,12 @@ class FarmController extends Controller
     public function store(Request $request)
     {
         $data = $this->validate($request, [
-            'location' => 'required|string|max:255',
-            'area_of_hector' => 'required|numeric'
+            'name' => 'required|string|max:255',
+            'area_of_hector' => 'required|numeric',
+            'city_id' => 'required|integer|min:1'
         ]);
+
+        City::findOrFail($request->city_id);
 
         $user = User::findOrFail(auth()->id());
 
@@ -77,9 +81,14 @@ class FarmController extends Controller
         }
 
         $data = $this->validate($request, [
-            'location' => 'string|max:255',
-            'area_of_hector' => 'numeric|numeric'
+            'name' => 'string|max:255',
+            'area_of_hector' => 'numeric|numeric',
+            'city_id' => 'integer|min:1'
         ]);
+
+        if($request->city_id){
+            City::findOrFail($request->city_id);
+        }
 
         $farm->update($data);
 

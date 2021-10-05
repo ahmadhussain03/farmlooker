@@ -55,7 +55,7 @@ class ManagerController extends Controller
                 "password" => "required|confirmed|min:6|max:255",
                 "first_name" => "required|string|max:255",
                 "last_name" => "required|string|max:255",
-                "phone_no" => "required|string|phone:AUTO,SA|max:20"
+                "phone_no" => "required|string|max:20"
             ]);
 
             $user = User::create([
@@ -117,7 +117,7 @@ class ManagerController extends Controller
                 "password" => "nullable|confirmed|min:6|max:255",
                 "first_name" => "nullable|string|max:255",
                 "last_name" => "nullable|string|max:255",
-                "phone_no" => "nullable|string|phone:AUTO,SA|max:20"
+                "phone_no" => "nullable|string|max:20"
             ]);
 
             $manager->update($data);

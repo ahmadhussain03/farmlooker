@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Admin\OrderFeedController;
 use App\Http\Controllers\Api\Admin\SubscriptionController;
 use App\Http\Controllers\Api\Admin\NotificationController;
 use App\Http\Controllers\Api\Admin\DiseaseAlertController;
+use App\Http\Controllers\Api\Admin\EmailVerificationController;
 use App\Http\Controllers\Api\Admin\ExpenseChartController;
 use App\Http\Controllers\Api\Admin\TradingAnimalController;
 use App\Http\Controllers\Api\Admin\VaccineRecordController;
@@ -38,8 +39,18 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
+
+    // Email Verification Routes
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])->middleware('throttle:6,1');
+    Route::post('/email/verify', [EmailVerificationController::class, 'verify']);
+
     // Logout Route
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Verified Routes
+    // Route::group(['middlware' => 'verified'], function(){
+
+    // });
 
     // User Subscriptions Routes
     Route::get('/subscribe/{id}', [SubscriptionController::class, 'show']);

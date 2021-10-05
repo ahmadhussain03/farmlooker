@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Admin\VaccineRecordController;
 use App\Http\Controllers\Api\Admin\RentalEquipmentController;
 use App\Http\Controllers\Api\Admin\HomeTradingAnimalController;
 use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
+use App\Http\Controllers\Api\CountryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,4 +34,10 @@ use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
 
 Route::middleware(['auth:api'])->get('/user', function(Request $request){
     return $request->user();
+});
+
+Route::group(['middleware' => ['auth:sanctum']], function(){
+    Route::get('countries', [CountryController::class, 'countries']);
+    Route::get('states/{id}', [CountryController::class, 'states']);
+    Route::get('cities/{id}', [CountryController::class, 'cities']);
 });

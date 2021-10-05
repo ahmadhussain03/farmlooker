@@ -69,7 +69,7 @@ class RentalEquipmentController extends Controller
                 'location' => 'required|string',
                 'dated' => 'required|date',
                 'image' => 'required|mimes:jpeg,jpg,png,bmp',
-                "phone" => "required|string|phone:AUTO,SA|max:20"
+                "phone" => "required|string|max:20"
             ]);
 
             $imageName = time() . $request->image->getClientOriginalName();
@@ -156,7 +156,7 @@ class RentalEquipmentController extends Controller
                 'location' => 'nullable|string',
                 'dated' => 'nullable|date',
                 'image' => 'sometimes|mimes:jpeg,jpg,png,bmp',
-                "phone" => "nullable|string|phone:AUTO,SA|max:20"
+                "phone" => "nullable|string|max:20"
             ]);
 
             $image = $rentalEquipment->image;

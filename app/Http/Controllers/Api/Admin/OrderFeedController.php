@@ -51,7 +51,7 @@ class OrderFeedController extends Controller
         try {
             $this->validate($request, [
                 'name' => 'required|string|max:255|min:2',
-                "phone_no" => "required|string|phone:AUTO,SA|max:20",
+                "phone_no" => "required|string|max:20",
                 'address' => 'required|string',
                 'description' => 'required|string',
                 'quantity' => 'required|numeric',
@@ -142,7 +142,7 @@ class OrderFeedController extends Controller
 
             $this->validate($request, [
                 'name' => 'nullable|string|max:255|min:2',
-                "phone_no" => "nullable|string|phone:AUTO,SA|max:20",
+                "phone_no" => "nullable|string|max:20",
                 'address' => 'nullable|string',
                 'description' => 'nullable|string',
                 'quantity' => 'nullable|numeric',

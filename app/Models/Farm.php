@@ -47,6 +47,11 @@ class Farm extends Model
         'area_of_hector',
     ];
 
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
     public function members()
     {
         return $this->belongsToMany(User::class);

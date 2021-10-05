@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFarmsTable extends Migration
+class CreateUserEmailVerificationCodesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateFarmsTable extends Migration
      */
     public function up()
     {
-        Schema::create('farms', function (Blueprint $table) {
+        Schema::create('user_email_verification_codes', function (Blueprint $table) {
             $table->id();
 
-            $table->string('name');
-            $table->double('area_of_hector');
-
-            $table->foreignId('city_id')->constrained()->cascadeOnDelete();
+            $table->string("code");
+            $table->foreignId('user_id')->constrained()->onDelete('CASCADE');
 
             $table->timestamps();
         });
@@ -32,6 +30,6 @@ class CreateFarmsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('farms');
+        Schema::dropIfExists('user_email_verification_codes');
     }
 }
