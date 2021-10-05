@@ -17,8 +17,6 @@ class CreateAnimalsTable extends Migration
             $table->id();
 
             $table->string('animal_id');
-            $table->string('type');
-            $table->string('breed');
             $table->enum('add_as', ['purchased', 'calved']);
             $table->string('sex');
             $table->date('dob');
@@ -27,6 +25,8 @@ class CreateAnimalsTable extends Migration
             $table->double('price')->nullable();
             $table->string('previous_owner')->nullable();
 
+            $table->foreignId('type_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('breed_id')->constrained()->cascadeOnDelete();
             $table->foreignId('male_breeder_id')->nullable()->constrained('animals')->onDelete('CASCADE');
             $table->foreignId('female_breeder_id')->nullable()->constrained('animals')->onDelete('CASCADE');
             $table->foreignId('farm_id')->constrained()->onDelete('CASCADE');

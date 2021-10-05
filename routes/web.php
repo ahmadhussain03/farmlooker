@@ -1,11 +1,12 @@
 <?php
 
-
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\TypeController;
+use App\Http\Controllers\BreedController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SinglePageController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin', 'as' => 'admin.'], fu
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('notification', NotificationController::class)->only(['index', 'store', 'create']);
+
+    Route::resource('type', TypeController::class);
+
+    Route::resource('breed', BreedController::class);
 
     // Route::get('/subscribe/{id}', [SubscriptionController::class, 'show']);
 

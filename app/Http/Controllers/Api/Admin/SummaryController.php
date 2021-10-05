@@ -25,7 +25,7 @@ class SummaryController extends Controller
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $animalSummary = $currentUser->animals()->select(['animals.type', DB::raw('COUNT(animals.type) as count')])->groupBy(['animals.type', 'farm_user.user_id'])->get();
+            $animalSummary = $currentUser->animals()->with(['type'])->select(['animals.type_id', DB::raw('COUNT(animals.type_id) as count')])->groupBy(['animals.type_id', 'farm_user.user_id'])->get();
             $animalSexSummary = $currentUser->animals()->select(['animals.sex', DB::raw('COUNT(animals.sex) as count')])->groupBy(['animals.sex', 'farm_user.user_id'])->get();
             $sick = $currentUser->animals()->select(['animals.disease', DB::raw('COUNT(animals.disease) as count')])->where('animals.disease', 'sick')->groupBy(['animals.disease', 'farm_user.user_id'])->first();
             $vaccinated = $currentUser->vaccineRecords()->select(['vaccine_records.animal_id', DB::raw('COUNT(vaccine_records.animal_id) as count')])->groupBy(['vaccine_records.animal_id', 'farm_user.user_id'])->count();

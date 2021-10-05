@@ -8,6 +8,8 @@ use App\Models\Animal;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\Breed;
+use App\Models\Type;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -29,7 +31,7 @@ class AnimalController extends Controller
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm']);
+            $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm', 'type', 'breed']);
 
             if($request->has('client') && $request->client === 'datatable'){
                 $animalQuery->select(["*", "animals.id as animalId"]);
@@ -79,7 +81,7 @@ class AnimalController extends Controller
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $animal = $currentUser->animals()->with(['farm'])->where('animals.id', $animal)->firstOrFail();
+            $animal = $currentUser->animals()->with(['farm', 'type', 'breed'])->where('animals.id', $animal)->firstOrFail();
 
             return response()->json([
                 'code' => 200,
@@ -144,8 +146,8 @@ class AnimalController extends Controller
         try {
             $data = $this->validate($request, [
                 'animal_id' => 'required',
-                'type' => 'required|string|max:255',
-                'breed' => 'required|string|max:255',
+                'type_id' => 'required|integer|max:255',
+                'breed_id' => 'required|integer|max:255',
                 'add_as' => 'required|in:purchased,calved',
                 'male_breeder_id' => 'nullable|integer',
                 'female_breeder_id' => 'nullable|integer',
@@ -162,8 +164,11 @@ class AnimalController extends Controller
             $currentUser = auth()->user();
             $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
 
+            Type::findOrFail($request->type_id);
+            Breed::findOrFail($request->breed_id);
+
             $animal = Animal::create($data);
-            $animal->load(['maleParent', 'femaleParent']);
+            $animal->load(['maleParent', 'femaleParent', 'type', 'breed']);
             return response()->json([
                 'code' => 200,
                 'message' => 'Animal Created Successfully',

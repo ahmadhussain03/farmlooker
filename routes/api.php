@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Admin\RentalEquipmentController;
 use App\Http\Controllers\Api\Admin\HomeTradingAnimalController;
 use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
 use App\Http\Controllers\Api\CountryController;
+use App\Http\Controllers\Api\TypeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,4 +41,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::get('countries', [CountryController::class, 'countries']);
     Route::get('states/{id}', [CountryController::class, 'states']);
     Route::get('cities/{id}', [CountryController::class, 'cities']);
+
+    Route::get('types', [TypeController::class, 'types']);
+    Route::get('breeds/{id}', [TypeController::class, 'breeds']);
 });

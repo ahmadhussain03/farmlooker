@@ -82,6 +82,16 @@ class Animal extends Model
         'farm_id'
     ];
 
+    public function type()
+    {
+        return $this->belongsTo(Type::class);
+    }
+
+    public function breed()
+    {
+        return $this->belongsTo(Breed::class);
+    }
+
     public function farm(): BelongsTo
     {
         return $this->belongsTo(Farm::class);
