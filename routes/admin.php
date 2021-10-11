@@ -23,6 +23,9 @@ use App\Http\Controllers\Api\Admin\VaccineRecordController;
 use App\Http\Controllers\Api\Admin\RentalEquipmentController;
 use App\Http\Controllers\Api\Admin\HomeTradingAnimalController;
 use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
+use App\Http\Controllers\Api\Admin\MiscelleneousController;
+use App\Http\Controllers\Api\Admin\OrderFeedExpenseController;
+use App\Http\Controllers\Api\Admin\SalaryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,6 +109,15 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     // Weather Route
     Route::apiResource('weather', WeatherController::class)->only(['index']);
 
+    // Salary Route
+    Route::apiResource('salary', SalaryController::class)->only(['store']);
+
+    // Order Feed Expense Route
+    Route::apiResource('order_feed_expense', OrderFeedExpenseController::class)->only(['store']);
+
+    // Miscelleneous Route
+    Route::apiResource('miscelleneous', MiscelleneousController::class)->only(['store']);
+
     // Home Routes
     Route::prefix('home')->group(function () {
         // All Rental Equipment Route
@@ -116,6 +128,9 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
 
         // Total Expense
         Route::get('expense/total', [ExpenseController::class, 'show']);
+
+        // Total Expense Summary
+        Route::get('expense/summary', [ExpenseController::class, 'summary']);
 
         // Expense Chart
         Route::get('expense_chart', [ExpenseChartController::class, 'index']);

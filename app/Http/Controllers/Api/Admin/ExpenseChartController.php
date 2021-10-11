@@ -12,7 +12,7 @@ class ExpenseChartController extends Controller
     {
         /** @var App\Models\User */
         $currentUser = auth()->user();
-        $data = $currentUser->animals()->select([DB::raw("SUM(animals.price) AS price"), DB::raw("MONTH(animals.purchase_date) AS month"), DB::raw("YEAR(animals.purchase_date) AS year")])->groupBy(DB::raw("MONTH(animals.purchase_date)"), DB::raw("YEAR(animals.purchase_date)"), 'farm_user.user_id')->where('animals.add_as', 'purchased')->whereRaw("YEAR(animals.purchase_date) = ?", [now()->year])->get();
+        $data = $currentUser->expenses()->select([DB::raw("SUM(expenses.amount) AS price"), DB::raw("MONTH(expenses.created_at) AS month"), DB::raw("YEAR(expenses.created_at) AS year")])->groupBy(DB::raw("MONTH(expenses.created_at)"), DB::raw("YEAR(expenses.created_at)"), 'farm_user.user_id')->whereRaw("YEAR(expenses.created_at) = ?", [now()->year])->get();
 
         return response()->success($data);
     }

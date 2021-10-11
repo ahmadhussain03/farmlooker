@@ -157,6 +157,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasManyDeep(Animal::class, ['farm_user', Farm::class]);
     }
 
+    public function expenses()
+    {
+        return $this->hasManyDeep(Expense::class, ['farm_user', Farm::class]);
+    }
+
     public function workers()
     {
         return $this->hasManyDeep(Worker::class, ['farm_user', Farm::class]);

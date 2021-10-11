@@ -76,4 +76,9 @@ class Farm extends Model
     {
         return $this->hasMany(Worker::class);
     }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
 }

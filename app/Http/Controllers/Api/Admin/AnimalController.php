@@ -155,8 +155,8 @@ class AnimalController extends Controller
                 'dob' => 'required',
                 'purchase_date' => 'nullable|date',
                 'disease' => 'required|in:healthy,sick',
-                'price' => 'nullable|numeric',
                 'farm_id' => 'required|integer|min:1',
+                'price' => 'nullable|required_if:add_as,purchased|numeric',
                 'previous_owner' => 'required_if:add_as,purchased'
             ]);
 

@@ -92,6 +92,14 @@ class Animal extends Model
         return $this->belongsTo(Breed::class);
     }
 
+     /**
+     * Get all of the post's comments.
+     */
+    public function expense()
+    {
+        return $this->morphOne(Expense::class, 'expenseable');
+    }
+
     public function farm(): BelongsTo
     {
         return $this->belongsTo(Farm::class);
@@ -115,5 +123,25 @@ class Animal extends Model
     public function femaleParentTree(): BelongsTo
     {
         return $this->belongsTo(Animal::class, 'female_breeder_id', 'id')->with(['maleParentTree', 'femaleParentTree']);
+    }
+
+    /**
+     * model life cycle event listeners
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($instance){
+            if($instance->add_as == 'purchased'){
+                if($instance->expense()->exists()){
+                    $instance->expense()->delete();
+                }
+                $expense = new Expense();
+                $expense->amount = $instance->price;
+                $expense->farm_id = $instance->farm_id;
+                $instance->expense()->save($expense);
+            }
+        });
     }
 }

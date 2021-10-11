@@ -21,16 +21,14 @@ class WorkerController extends Controller
     {
         /** @var App\Models\User */
         $currentUser = auth()->user();
-        $workerQuery = $currentUser->workers()->with(['farm']);
+        $workerQuery = $currentUser->workers();
 
         if($request->has('client') && $request->client === 'datatable'){
-            $workerQuery->select(["*", "workers.id as workerId"]);
-            return DataTables::eloquent($workerQuery)->editColumn('joining_date', function($worker){
-                return $worker->joining_date->toFormattedDateString();
-            })
-            ->setRowId('workerId')
-            ->addIndexColumn()
-            ->toJson();
+            $workerQuery->select(["*", "workers.id as workerId", "workers.name as workerName"]);
+            return DataTables::eloquent($workerQuery)
+                ->setRowId('workerId')
+                ->addIndexColumn()
+                ->toJson();
         }
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
