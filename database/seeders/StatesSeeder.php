@@ -3257,20 +3257,11 @@ public function run()
 		array('name' => "Shabellaha Hose",'country_id' => 201),
 		array('name' => "Togdher",'country_id' => 201),
 		array('name' => "Woqoyi Galbed",'country_id' => 201),
-		array('name' => "Eastern Cape",'country_id' => 202),
-		array('name' => "Free State",'country_id' => 202),
-		array('name' => "Gauteng",'country_id' => 202),
 		array('name' => "Kempton Park",'country_id' => 202),
 		array('name' => "Kramerville",'country_id' => 202),
-		array('name' => "KwaZulu Natal",'country_id' => 202),
-		array('name' => "Limpopo",'country_id' => 202),
-		array('name' => "Mpumalanga",'country_id' => 202),
-		array('name' => "North West",'country_id' => 202),
-		array('name' => "Northern Cape",'country_id' => 202),
 		array('name' => "Parow",'country_id' => 202),
 		array('name' => "Table View",'country_id' => 202),
 		array('name' => "Umtentweni",'country_id' => 202),
-		array('name' => "Western Cape",'country_id' => 202),
 		array('name' => "South Georgia",'country_id' => 203),
 		array('name' => "Central Equatoria",'country_id' => 204),
 		array('name' => "A Coruna",'country_id' => 205),
@@ -4139,9 +4130,22 @@ public function run()
 		array('name' => "Masvingo",'country_id' => 246),
 		array('name' => "Matabeleland North",'country_id' => 246),
 		array('name' => "Matabeleland South",'country_id' => 246),
-		array('name' => "Midlands",'country_id' => 246)
+		array('name' => "Midlands",'country_id' => 246),
 		);
+
+        $otherStates = array(
+            array('id' => 10001, 'name' => "Gauteng",'country_id' => 202),
+            array('id' => 10002, 'name' => "KwaZulu Natal",'country_id' => 202),
+            array('id' => 10003, 'name' => "Western Cape",'country_id' => 202),
+            array('id' => 10004, 'name' => "Free State",'country_id' => 202),
+            array('id' => 10005, 'name' => "Eastern Cape",'country_id' => 202),
+            array('id' => 10006, 'name' => "Limpopo",'country_id' => 202),
+            array('id' => 10007, 'name' => "North West",'country_id' => 202),
+            array('id' => 10008, 'name' => "Mpumalanga",'country_id' => 202),
+            array('id' => 10009, 'name' => "Northern Cape",'country_id' => 202),
+        );
 		DB::table('states')->insert($states);
+		DB::table('states')->insert($otherStates);
         Schema::enableForeignKeyConstraints();
     }
 }
