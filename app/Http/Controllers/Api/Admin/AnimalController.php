@@ -146,8 +146,8 @@ class AnimalController extends Controller
         try {
             $data = $this->validate($request, [
                 'animal_id' => 'required',
-                'type_id' => 'required|integer|max:255',
-                'breed_id' => 'required|integer|max:255',
+                'type_id' => 'required|integer',
+                'breed_id' => 'required|integer',
                 'add_as' => 'required|in:purchased,calved',
                 'male_breeder_id' => 'nullable|integer',
                 'female_breeder_id' => 'nullable|integer',
@@ -205,8 +205,8 @@ class AnimalController extends Controller
 
             $this->validate($request, [
                 'animal_id' => 'integer',
-                'type' => 'string|max:255',
-                'breed' => 'string|max:255',
+                'type' => 'nullable|integer',
+                'breed' => 'nullable|integer',
                 'add_as' => 'in:purchased,calved',
                 'male_breeder_id' => 'integer',
                 'female_breeder_id' => 'integer',

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Animal as ModelsAnimal;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -143,5 +144,28 @@ class Animal extends Model
                 $instance->expense()->save($expense);
             }
         });
+
+        static::saving(function($instance){
+            if(!$instance->auid){
+                $instance->auid = $instance->farm->name;
+
+                $instance->auid .= '_' . $instance->animal_id;
+                $instance->auid .= "_" . $instance->dob->format('Y_m_d');
+                $instance->auid .= "_" . $instance->farm->city_id;
+                $instance->auid .= $instance->sex == 'male' ? '_M' : '_F';
+                $instance->auid .= "_" . self::getRandomString();
+            }
+        });
+    }
+
+    public static function getRandomString($length = 7)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*(){}[]?<>~';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 }
