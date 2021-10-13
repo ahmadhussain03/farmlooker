@@ -28,7 +28,7 @@ class DiseaseAlertController extends Controller
                 $diseaseAlertQuery->select(["*", "disease_alerts.id as diseaseId"]);
 
                 return DataTables::eloquent($diseaseAlertQuery)->editColumn('symptoms', function($alert){
-                    return $alert->symptoms;
+                    return implode(", ", $alert->symptoms);
                 })
                 ->setRowId('diseaseId')
                 ->addIndexColumn()
