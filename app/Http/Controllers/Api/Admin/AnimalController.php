@@ -49,12 +49,12 @@ class AnimalController extends Controller
             }
 
             if($request->has('type')){
-                $animalQuery->where('type', $request->type);
+                $animalQuery->where('type_id', $request->type);
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $animals = $animalQuery->search()->paginate($perPage);
+            $animals = $animalQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
