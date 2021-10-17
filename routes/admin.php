@@ -118,6 +118,9 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     // Miscelleneous Route
     Route::apiResource('miscelleneous', MiscelleneousController::class)->only(['store']);
 
+    // Miscelleneous Route
+    Route::apiResource('miscelleneous', MiscelleneousController::class)->only(['store']);
+
     // Home Routes
     Route::prefix('home')->group(function () {
         // All Rental Equipment Route
