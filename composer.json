@@ -8,6 +8,7 @@
         "php": "^7.3|^8.0",
         "billowapp/show-me-the-money": "^0.4.2",
         "cmfcmf/openweathermap-php-api": "^3.3",
+        "doctrine/dbal": "^3.1",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -19,8 +20,8 @@
         "php-http/guzzle7-adapter": "^1.0",
         "propaganistas/laravel-phone": "^4.3",
         "rakibdevs/openweather-laravel-api": "^1.5",
+        "staudenmeir/belongs-to-through": "^2.5",
         "staudenmeir/eloquent-has-many-deep": "^1.13",
-        "staudenmeir/belongs-to-through":"^2.5",
         "stevebauman/location": "^6.2",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
