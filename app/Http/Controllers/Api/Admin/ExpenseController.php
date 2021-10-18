@@ -26,7 +26,6 @@ class ExpenseController extends Controller
 
     public function show()
     {
-
         /** @var App\Models\User */
         $currentUser = auth()->user();
         $purchaseTotal = $currentUser->expenses()->sum('expenses.amount');
@@ -40,11 +39,12 @@ class ExpenseController extends Controller
         $currentUser = auth()->user();
 
         $totalExpense = $currentUser->expenses()->sum('expenses.amount');
+        $totalIncome = $currentUser->incomes()->sum('incomes.amount');
         $animalExpense = $currentUser->expenses()->where('expenses.expenseable_type', Animal::class)->sum('expenses.amount');
         $salaries = $currentUser->expenses()->where('expenses.expenseable_type', Salary::class)->sum('expenses.amount');
         $orderFeedExpense = $currentUser->expenses()->where('expenses.expenseable_type', OrderFeedExpense::class)->sum('expenses.amount');
         $miscelleneous = $currentUser->expenses()->where('expenses.expenseable_type', Miscelleneous::class)->sum('expenses.amount');
 
-        return response()->success(['total_expense' => $totalExpense, 'animal_expense' => $animalExpense, 'salaries' => $salaries, 'order_feed_expense' => $orderFeedExpense, 'miscelleneous' => $miscelleneous]);
+        return response()->success(['total_income' => $totalIncome, 'total_expense' => $totalExpense, 'animal_expense' => $animalExpense, 'salaries' => $salaries, 'order_feed_expense' => $orderFeedExpense, 'miscelleneous' => $miscelleneous]);
     }
 }
