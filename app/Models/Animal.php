@@ -134,7 +134,7 @@ class Animal extends Model
         parent::boot();
 
         static::saved(function ($instance){
-            if($instance->add_as == 'purchased'){
+            if($instance->add_as == 'purchased' && $instance->farm_id != null){
                 if($instance->expense()->exists()){
                     $instance->expense()->delete();
                 }

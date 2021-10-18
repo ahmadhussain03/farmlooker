@@ -5,12 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AnimalSold extends Model
+class OtherIncome extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
-
 
     /**
      * Get all of the post's comments.
@@ -33,7 +32,7 @@ class AnimalSold extends Model
             }
             $income = new Income();
             $income->amount = $instance->amount;
-            $income->farm_id = $instance->previous_farm;
+            $income->farm_id = $instance->farm_id;
             $instance->income()->save($income);
         });
     }

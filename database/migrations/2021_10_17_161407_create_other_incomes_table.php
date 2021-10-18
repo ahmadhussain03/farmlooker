@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAnimalSoldsTable extends Migration
+class CreateOtherIncomesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,13 @@ class CreateAnimalSoldsTable extends Migration
      */
     public function up()
     {
-        Schema::create('animal_solds', function (Blueprint $table) {
+        Schema::create('other_incomes', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('animal_id')->constrained()->cascadeOnDelete();
-
             $table->double('amount');
+            $table->string('reason');
 
-            $table->foreignId('previous_farm')->constrained('farms', 'id')->cascadeOnDelete();
-            $table->foreignId('farm_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('farm_id')->constrained()->cascadeOnDelete();
 
             $table->timestamps();
         });
@@ -34,6 +32,6 @@ class CreateAnimalSoldsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('animal_solds');
+        Schema::dropIfExists('other_incomes');
     }
 }
