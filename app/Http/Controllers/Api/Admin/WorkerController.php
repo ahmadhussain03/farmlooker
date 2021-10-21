@@ -24,7 +24,7 @@ class WorkerController extends Controller
         $workerQuery = $currentUser->workers();
 
         if($request->has('client') && $request->client === 'datatable'){
-            $workerQuery->select(["*", "workers.id as workerId", "workers.name as workerName"]);
+            $workerQuery->with(['farm'])->select(["*", "workers.id as workerId", "workers.name as workerName"]);
             return DataTables::eloquent($workerQuery)
                 ->setRowId('workerId')
                 ->addIndexColumn()
@@ -76,7 +76,7 @@ class WorkerController extends Controller
     {
         /** @var App\Models\User */
         $currentUser = auth()->user();
-        $worker = $currentUser->workers()->where('workers.id', $worker)->firstOrFail();
+        $worker = $currentUser->workers()->with(['farm'])->where('workers.id', $worker)->firstOrFail();
 
         return response()->success($worker);
     }

@@ -9,14 +9,24 @@ use Illuminate\Http\Request;
 
 class TypeController extends Controller
 {
-    public function types()
+    public function types(Request $request)
     {
-        return response()->success(Type::all());
+        $typeQuery = Type::query();
+        $perPage = $request->has('limit') ? intval($request->limit) : 10;
+
+        $types = $typeQuery->paginate($perPage);
+
+        return response()->success($types);
     }
 
-    public function breeds($id)
+    public function breeds(Request $request, $id)
     {
-        $breeds = Breed::where('type_id', $id)->get();
+        $breedQuery = Breed::query()->where('type_id', $id);
+
+        $perPage = $request->has('limit') ? intval($request->limit) : 10;
+
+        $breeds = $breedQuery->paginate($perPage);
+
         return response()->success($breeds);
     }
 }

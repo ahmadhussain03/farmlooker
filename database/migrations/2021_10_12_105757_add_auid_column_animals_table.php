@@ -14,7 +14,7 @@ class AddAuidColumnAnimalsTable extends Migration
     public function up()
     {
         Schema::table('animals', function (Blueprint $table) {
-            $table->string('auid');
+            $table->string('auid')->index();
         });
     }
 

@@ -48,7 +48,6 @@ class AuthController extends Controller
 
         $user->sendEmailVerificationNotification();
 
-        $user->email_verified_at = now();
         $token = $user->createToken($request->device_name)->plainTextToken;
         $user->device_token = $request->device_token;
         $user->save();
@@ -93,7 +92,6 @@ class AuthController extends Controller
             ]);
         }
 
-        $user->email_verified_at = now();
         $token = $user->createToken($request->device_name)->plainTextToken;
         $user->device_token = $request->device_token;
         $user->save();

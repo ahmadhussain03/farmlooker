@@ -10,22 +10,47 @@ use App\Models\State;
 
 class CountryController extends Controller
 {
-    public function countries()
+    public function countries(Request $request)
     {
-        $countries = Country::all();
+        $countriesQuery = Country::query();
+
+        $perPage = $request->has('limit') ? intval($request->limit) : 10;
+
+        if($request->has('search')){
+            $countriesQuery->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $countries = $countriesQuery->paginate($perPage);
+
         return response()->success($countries);
     }
 
-    public function states($id)
+    public function states(Request $request, $id)
     {
-        $states = State::where('country_id', $id)->get();
+        $statesQuery = State::query()->where('country_id', $id);
+
+        $perPage = $request->has('limit') ? intval($request->limit) : 10;
+
+        if($request->has('search')){
+            $statesQuery->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $states = $statesQuery->paginate($perPage);
 
         return response()->success($states);
     }
 
-    public function cities($id)
+    public function cities(Request $request, $id)
     {
-        $cities = City::where('state_id', $id)->get();
+        $citiesQuery = City::query()->where('state_id', $id);
+
+        $perPage = $request->has('limit') ? intval($request->limit) : 10;
+
+        if($request->has('search')){
+            $citiesQuery->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $cities = $citiesQuery->paginate($perPage);
 
         return response()->success($cities);
     }

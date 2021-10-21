@@ -35,6 +35,10 @@ class FarmController extends Controller
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
+        if($request->has('search')){
+            $farmsQuery->where('farms.name', 'like', '%' . $request->search . '%');
+        }
+
         $farms = $farmsQuery->search()->paginate($perPage);
 
         return response()->success($farms);

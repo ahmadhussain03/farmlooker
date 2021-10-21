@@ -52,6 +52,10 @@ class AnimalController extends Controller
                 $animalQuery->where('type_id', $request->type);
             }
 
+            if($request->has('search')){
+                $animalQuery->where('animals.auid', 'like', '%' . $request->search . '%');
+            }
+
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
             $animals = $animalQuery->paginate($perPage);
@@ -149,8 +153,8 @@ class AnimalController extends Controller
                 'type_id' => 'required|integer',
                 'breed_id' => 'required|integer',
                 'add_as' => 'required|in:purchased,calved',
-                'male_breeder_id' => 'nullable|integer',
-                'female_breeder_id' => 'nullable|integer',
+                'male_breeder_id' => 'nullable|integer|required_if:add_as,calved',
+                'female_breeder_id' => 'nullable|integer|required_if:add_as,calved',
                 'sex' => 'required|in:male,female',
                 'dob' => 'required',
                 'purchase_date' => 'nullable|date',
@@ -204,15 +208,15 @@ class AnimalController extends Controller
             $animal = $currentUser->animals()->where('animals.id', $animal)->firstOrFail();
 
             $this->validate($request, [
-                'animal_id' => 'integer',
-                'type' => 'nullable|integer',
-                'breed' => 'nullable|integer',
+                'animal_id' => 'nullable',
+                'type_id' => 'nullable|integer',
+                'breed_id' => 'nullable|integer',
                 'add_as' => 'in:purchased,calved',
-                'male_breeder_id' => 'integer',
-                'female_breeder_id' => 'integer',
+                'male_breeder_id' => 'nullable|integer',
+                'female_breeder_id' => 'nullable|integer',
                 'sex' => 'in:male,female',
                 'dob' => 'string',
-                'purchase_date' => 'date',
+                'purchase_date' => 'nullable|date',
                 'disease' => 'in:healthy,sick',
                 'price' => 'numeric',
                 'previous_owner' => 'required_if:add_as,purchased'

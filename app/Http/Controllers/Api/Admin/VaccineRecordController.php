@@ -118,7 +118,7 @@ class VaccineRecordController extends Controller
 
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $vaccineRecord = $currentUser->vaccineRecords()->where('vaccine_records.id', $vaccine_record)->firstOrFail();
+            $vaccineRecord = $currentUser->vaccineRecords()->with(['animal'])->where('vaccine_records.id', $vaccine_record)->firstOrFail();
 
             return response()->json([
                 'code' => 200,

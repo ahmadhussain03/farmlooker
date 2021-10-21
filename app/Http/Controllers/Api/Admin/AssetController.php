@@ -122,7 +122,7 @@ class AssetController extends Controller
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $asset = $currentUser->assets()->where('assets.id', $asset)->firstOrFail();
+            $asset = $currentUser->assets()->with(['farm'])->where('assets.id', $asset)->firstOrFail();
 
             return response()->json([
                 'code' => 200,
