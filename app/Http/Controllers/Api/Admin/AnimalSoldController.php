@@ -12,7 +12,8 @@ class AnimalSoldController extends Controller
     {
         $this->validate($request, [
             'animal' => 'required|exists:animals,id',
-            'amount' => 'required|numeric'
+            'amount' => 'required|numeric',
+            'dated' => 'required|date'
         ]);
 
         /** @var App\Models\User */
@@ -23,7 +24,8 @@ class AnimalSoldController extends Controller
             'animal_id' => $animal->id,
             'farm_id' => null,
             'amount' => $request->amount,
-            'previous_farm' => $animal->farm_id
+            'previous_farm' => $animal->farm_id,
+            'dated' => $request->dated
         ]);
 
         $animal->farm_id = null;

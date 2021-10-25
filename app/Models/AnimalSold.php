@@ -34,6 +34,7 @@ class AnimalSold extends Model
             $income = new Income();
             $income->amount = $instance->amount;
             $income->farm_id = $instance->previous_farm;
+            $income->dated = $instance->dated;
             $instance->income()->save($income);
         });
     }

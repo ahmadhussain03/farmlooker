@@ -13,7 +13,8 @@ class SalaryController extends Controller
     {
         $this->validate($request, [
             'worker' => 'required|integer|exists:workers,id',
-            'pay' => 'required|numeric'
+            'pay' => 'required|numeric',
+            'dated' => 'required|date'
         ]);
 
         $worker = Worker::findOrFail($request->worker);
@@ -25,7 +26,8 @@ class SalaryController extends Controller
         $salary = Salary::create([
             'worker_id' => $request->worker,
             'pay' => $request->pay,
-            'farm_id' => $worker->farm_id
+            'farm_id' => $worker->farm_id,
+            'dated' => $request->dated
         ]);
 
         return response()->success($salary);

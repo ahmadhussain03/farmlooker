@@ -13,7 +13,8 @@ class MiscelleneousController extends Controller
         $data = $this->validate($request, [
             'reason' => 'required|string|max:255',
             'amount' => 'required|numeric',
-            'farm' => 'required|exists:farms,id'
+            'farm' => 'required|exists:farms,id',
+            'dated' => 'required|date'
         ]);
 
         /** @var App\Models\User */
@@ -23,7 +24,8 @@ class MiscelleneousController extends Controller
         $miscelleneous = Miscelleneous::create([
             'reason' => $request->reason,
             'amount' => $request->amount,
-            'farm_id' => $request->farm
+            'farm_id' => $request->farm,
+            'dated' => $request->dated
         ]);
 
         return response()->success($miscelleneous);

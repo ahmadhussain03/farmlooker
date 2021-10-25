@@ -6,29 +6,30 @@ use App\Http\Controllers\Api\Admin\AuthController;
 use App\Http\Controllers\Api\Admin\FarmController;
 use App\Http\Controllers\Api\Admin\AssetController;
 use App\Http\Controllers\Api\Admin\AnimalController;
-use App\Http\Controllers\Api\Admin\AnimalSoldController;
+use App\Http\Controllers\Api\Admin\IncomeController;
+use App\Http\Controllers\Api\Admin\SalaryController;
 use App\Http\Controllers\Api\Admin\WorkerController;
 use App\Http\Controllers\Api\Admin\ExpenseController;
-use App\Http\Controllers\Api\Admin\SummaryController;
 use App\Http\Controllers\Api\Admin\ManagerController;
 use App\Http\Controllers\Api\Admin\ProfileController;
+use App\Http\Controllers\Api\Admin\SummaryController;
 use App\Http\Controllers\Api\Admin\WeatherController;
 use App\Http\Controllers\Api\Admin\OrderFeedController;
-use App\Http\Controllers\Api\Admin\SubscriptionController;
-use App\Http\Controllers\Api\Admin\NotificationController;
+use App\Http\Controllers\Api\Admin\AnimalSoldController;
+use App\Http\Controllers\Api\Admin\IncomeChartController;
+use App\Http\Controllers\Api\Admin\OtherIncomeController;
 use App\Http\Controllers\Api\Admin\DiseaseAlertController;
-use App\Http\Controllers\Api\Admin\EmailVerificationController;
 use App\Http\Controllers\Api\Admin\ExpenseChartController;
+use App\Http\Controllers\Api\Admin\NotificationController;
+use App\Http\Controllers\Api\Admin\SubscriptionController;
+use App\Http\Controllers\Api\Admin\MiscelleneousController;
 use App\Http\Controllers\Api\Admin\TradingAnimalController;
 use App\Http\Controllers\Api\Admin\VaccineRecordController;
 use App\Http\Controllers\Api\Admin\RentalEquipmentController;
+use App\Http\Controllers\Api\Admin\OrderFeedExpenseController;
+use App\Http\Controllers\Api\Admin\EmailVerificationController;
 use App\Http\Controllers\Api\Admin\HomeTradingAnimalController;
 use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
-use App\Http\Controllers\Api\Admin\IncomeChartController;
-use App\Http\Controllers\Api\Admin\MiscelleneousController;
-use App\Http\Controllers\Api\Admin\OrderFeedExpenseController;
-use App\Http\Controllers\Api\Admin\OtherIncomeController;
-use App\Http\Controllers\Api\Admin\SalaryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -143,6 +144,9 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
 
         // Expense Chart
         Route::get('expense_chart', [ExpenseChartController::class, 'index']);
+
+        // Total Income Summary
+        Route::get('income/summary', [IncomeController::class, 'summary']);
 
         // Income Chart
         Route::get('income_chart', [IncomeChartController::class, 'index']);

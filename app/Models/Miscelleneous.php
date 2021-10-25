@@ -33,6 +33,7 @@ class Miscelleneous extends Model
             $expense = new Expense();
             $expense->amount = $instance->amount;
             $expense->farm_id = $instance->farm_id;
+            $expense->dated = $instance->dated;
             $instance->expense()->save($expense);
         });
     }

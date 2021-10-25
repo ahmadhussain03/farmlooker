@@ -33,6 +33,7 @@ class OrderFeedExpense extends Model
             $expense = new Expense();
             $expense->amount = $instance->price;
             $expense->farm_id = $instance->farm_id;
+            $expense->dated = $instance->date;
             $instance->expense()->save($expense);
         });
     }

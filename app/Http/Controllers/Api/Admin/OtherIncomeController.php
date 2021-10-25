@@ -13,7 +13,8 @@ class OtherIncomeController extends Controller
         $this->validate($request, [
             'reason' => 'required|string|max:255',
             'amount' => 'required|numeric',
-            'farm' => 'required|integer'
+            'farm' => 'required|integer',
+            'dated' => 'required|date'
         ]);
 
         /** @var App\Models\User */
@@ -23,7 +24,8 @@ class OtherIncomeController extends Controller
         $otherIncome = OtherIncome::create([
             'reason' => $request->reason,
             'amount' => $request->amount,
-            'farm_id' => $request->farm
+            'farm_id' => $request->farm,
+            'dated' => $request->dated
         ]);
 
         return response()->success($otherIncome);

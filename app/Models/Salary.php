@@ -38,6 +38,7 @@ class Salary extends Model
             $expense = new Expense();
             $expense->amount = $instance->pay;
             $expense->farm_id = $instance->farm_id;
+            $expense->dated = $instance->dated;
             $instance->expense()->save($expense);
         });
     }

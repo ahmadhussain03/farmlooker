@@ -33,6 +33,7 @@ class OtherIncome extends Model
             $income = new Income();
             $income->amount = $instance->amount;
             $income->farm_id = $instance->farm_id;
+            $income->dated = $instance->dated;
             $instance->income()->save($income);
         });
     }

@@ -12,7 +12,7 @@ class IncomeChartController extends Controller
     {
         /** @var App\Models\User */
         $currentUser = auth()->user();
-        $data = $currentUser->incomes()->select([DB::raw("SUM(incomes.amount) AS price"), DB::raw("MONTH(incomes.created_at) AS month"), DB::raw("YEAR(incomes.created_at) AS year")])->groupBy(DB::raw("MONTH(incomes.created_at)"), DB::raw("YEAR(incomes.created_at)"), 'farm_user.user_id')->whereRaw("YEAR(incomes.created_at) = ?", [now()->year])->get();
+        $data = $currentUser->incomes()->select([DB::raw("SUM(incomes.amount) AS price"), DB::raw("MONTH(incomes.dated) AS month"), DB::raw("YEAR(incomes.dated) AS year")])->groupBy(DB::raw("MONTH(incomes.dated)"), DB::raw("YEAR(incomes.dated)"), 'farm_user.user_id')->whereRaw("YEAR(incomes.dated) = ?", [now()->year])->get();
 
         return response()->success($data);
     }
