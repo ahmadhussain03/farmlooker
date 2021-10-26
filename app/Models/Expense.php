@@ -18,4 +18,9 @@ class Expense extends Model
     {
         return $this->morphTo();
     }
+
+    public function farm()
+    {
+        return $this->belongsTo(Farm::class);
+    }
 }

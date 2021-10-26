@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Api\Admin;
 
 use DB;
 use DataTables;
+use App\Models\Type;
+use App\Models\Breed;
 use App\Models\Animal;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Models\Breed;
-use App\Models\Type;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -28,50 +28,38 @@ class AnimalController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        try {
-            /** @var App\Models\User */
-            $currentUser = auth()->user();
-            $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm', 'type', 'breed']);
+        /** @var App\Models\User */
+        $currentUser = auth()->user();
+        $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm', 'type', 'breed']);
 
-            if($request->has('client') && $request->client === 'datatable'){
-                $animalQuery->select(["*", "animals.id as animalId"]);
-                return DataTables::eloquent($animalQuery)
-                    ->editColumn('dob', function($animal){
-                        return $animal->dob->toFormattedDateString();
-                    })
-                    ->setRowId('animalId')
-                    ->addIndexColumn()
-                    ->toJson();
-            }
-
-            if($request->has('sex')){
-                $animalQuery->where('sex', $request->sex);
-            }
-
-            if($request->has('type')){
-                $animalQuery->where('type_id', $request->type);
-            }
-
-            if($request->has('search')){
-                $animalQuery->where('animals.auid', 'like', '%' . $request->search . '%');
-            }
-
-            $perPage = $request->has('limit') ? intval($request->limit) : 10;
-
-            $animals = $animalQuery->paginate($perPage);
-
-            return response()->json([
-                'code' => 200,
-                'message' => null,
-                'data' => $animals
-            ]);
-        } catch (\Exception $exception) {
-            return response()->json([
-                'code' => 500,
-                'message' => $exception->getMessage(),
-                'data' => null
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        if($request->has('client') && $request->client === 'datatable'){
+            $animalQuery->select(["*", "animals.id as animalId"]);
+            return DataTables::eloquent($animalQuery)
+                ->editColumn('dob', function($animal){
+                    return $animal->dob->toFormattedDateString();
+                })
+                ->setRowId('animalId')
+                ->addIndexColumn()
+                ->toJson();
         }
+
+        if($request->has('sex')){
+            $animalQuery->where('sex', $request->sex);
+        }
+
+        if($request->has('type')){
+            $animalQuery->where('type_id', $request->type);
+        }
+
+        if($request->has('search')){
+            $animalQuery->where('animals.auid', 'like', '%' . $request->search . '%');
+        }
+
+        $perPage = $request->has('limit') ? intval($request->limit) : 10;
+
+        $animals = $animalQuery->paginate($perPage);
+
+        return response()->success($animals);
     }
 
     /**

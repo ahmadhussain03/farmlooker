@@ -128,6 +128,12 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     // Other Income Route
     Route::apiResource('other_income', OtherIncomeController::class)->only(['store']);
 
+    // Income Routes
+    Route::apiResource('income', IncomeController::class)->only(['index']);
+
+    // Expense Routes
+    Route::apiResource('expense', ExpenseController::class)->only(['index']);
+
     // Home Routes
     Route::prefix('home')->group(function () {
         // All Rental Equipment Route
