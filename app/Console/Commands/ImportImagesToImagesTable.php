@@ -43,7 +43,7 @@ class ImportImagesToImagesTable extends Command
         TradingAnimal::chunk(100, function($tradingAnimals){
             foreach($tradingAnimals as $tradingAnimal){
                 $image = new Image();
-                $image = $tradingAnimal->image;
+                $image->image = $tradingAnimal->image;
 
                 $tradingAnimal->images()->save($image);
             }
@@ -53,7 +53,7 @@ class ImportImagesToImagesTable extends Command
         RentalEquipment::chunk(100, function($rentalEquipments){
             foreach($rentalEquipments as $rentalEquipment){
                 $image = new Image();
-                $image = $rentalEquipment->image;
+                $image->image = $rentalEquipment->image;
 
                 $rentalEquipment->images()->save($image);
             }
