@@ -106,7 +106,7 @@ class AnimalController extends Controller
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $animal = $currentUser->animals()->with(['femaleParentTree', 'maleParentTree'])->where('animals.id', $id)->firstOrFail();
+            $animal = $currentUser->animals()->with(['femaleParentTree', 'maleParentTree', 'type', 'breed'])->where('animals.id', $id)->firstOrFail();
             return response()->json([
                 'code' => 200,
                 'message' => null,

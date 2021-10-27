@@ -56,12 +56,12 @@ class SummaryController extends Controller
             /** @var App\Models\User */
             $currentUser = auth()->user();
 
-            $animalSexDetail = $currentUser->animals()->select(['animals.sex', DB::raw('COUNT(animals.sex) as count')])->where('animals.type', $type)->groupBy(['animals.sex', 'farm_user.user_id'])->get();
-            $animalHealthDetail = $currentUser->animals()->select(['animals.disease', DB::raw('COUNT(animals.disease) as count')])->where('animals.type', $type)->groupBy(['animals.disease', 'farm_user.user_id'])->get();
+            $animalSexDetail = $currentUser->animals()->select(['animals.sex', DB::raw('COUNT(animals.sex) as count')])->where('animals.type_id', $type)->groupBy(['animals.sex', 'farm_user.user_id'])->get();
+            $animalHealthDetail = $currentUser->animals()->select(['animals.disease', DB::raw('COUNT(animals.disease) as count')])->where('animals.type_id', $type)->groupBy(['animals.disease', 'farm_user.user_id'])->get();
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $animals = $currentUser->animals()->where('type', $type)->paginate($perPage);
+            $animals = $currentUser->animals()->where('type_id', $type)->paginate($perPage);
 
             return response()->json([
                 'code' => 200,

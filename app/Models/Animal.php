@@ -113,7 +113,7 @@ class Animal extends Model
 
     public function maleParentTree(): BelongsTo
     {
-        return $this->belongsTo(Animal::class, 'male_breeder_id', 'id')->with(['maleParentTree', 'femaleParentTree']);
+        return $this->belongsTo(Animal::class, 'male_breeder_id', 'id')->with(['maleParentTree', 'femaleParentTree', 'type', 'breed']);
     }
 
     public function femaleParent(): BelongsTo
@@ -123,7 +123,7 @@ class Animal extends Model
 
     public function femaleParentTree(): BelongsTo
     {
-        return $this->belongsTo(Animal::class, 'female_breeder_id', 'id')->with(['maleParentTree', 'femaleParentTree']);
+        return $this->belongsTo(Animal::class, 'female_breeder_id', 'id')->with(['maleParentTree', 'femaleParentTree', 'type', 'breed']);
     }
 
     /**
