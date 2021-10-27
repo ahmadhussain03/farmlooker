@@ -74,6 +74,6 @@ class ExpenseController extends Controller
         $orderFeedExpense = $currentUser->expenses()->where('expenses.expenseable_type', OrderFeedExpense::class)->sum('expenses.amount');
         $miscelleneous = $currentUser->expenses()->where('expenses.expenseable_type', Miscelleneous::class)->sum('expenses.amount');
 
-        return response()->success(['current_month_expense' => $currentMonthExpense->price, 'total_expense' => $totalExpense, 'animal_expense' => $animalExpense, 'salaries' => $salaries, 'order_feed_expense' => $orderFeedExpense, 'miscelleneous' => $miscelleneous]);
+        return response()->success(['current_month_expense' => $currentMonthExpense->price ?? 0, 'total_expense' => $totalExpense, 'animal_expense' => $animalExpense, 'salaries' => $salaries, 'order_feed_expense' => $orderFeedExpense, 'miscelleneous' => $miscelleneous]);
     }
 }

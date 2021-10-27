@@ -55,6 +55,6 @@ class IncomeController extends Controller
         $animalSold = $currentUser->incomes()->where('incomes.incomeable_type', AnimalSold::class)->sum('incomes.amount');
         $otherIncome = $currentUser->incomes()->where('incomes.incomeable_type', OtherIncome::class)->sum('incomes.amount');
 
-        return response()->success(['current_month_income' => $currentMonthIncome->price, 'total_income' => $totalIncome, 'animal_sold' => $animalSold, 'other_income' => $otherIncome]);
+        return response()->success(['current_month_income' => $currentMonthIncome->price ?? 0, 'total_income' => $totalIncome, 'animal_sold' => $animalSold, 'other_income' => $otherIncome]);
     }
 }
