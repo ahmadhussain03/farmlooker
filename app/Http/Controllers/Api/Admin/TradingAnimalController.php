@@ -6,6 +6,7 @@ use DataTables;
 use Illuminate\Http\Request;
 use App\Models\TradingAnimal;
 use App\Http\Controllers\Controller;
+use App\Models\Image;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -20,13 +21,19 @@ class TradingAnimalController extends Controller
     public function index(Request $request)
     {
         try {
-            $tradingAnimalQuery = TradingAnimal::query()->where('user_id', auth()->id());
+            $tradingAnimalQuery = TradingAnimal::query()->with(['images'])->where('user_id', auth()->id());
 
             if($request->has('client') && $request->client === 'datatable'){
                 return DataTables::eloquent($tradingAnimalQuery)
                         ->setRowId('id')
-                        ->editColumn('image', function($tradingAnimal){
-                            return "<div class='aspect-w-16 aspect-h-10'><img class='object-center object-contain border text-center rounded shadow ' src=". asset($tradingAnimal->image) ."></div>";
+                        ->addColumn('image', function($tradingAnimal){
+                            $image = $tradingAnimal->images()->first();
+                            if($image){
+                                $image = asset($image->image);
+                                return "<div class='aspect-w-16 aspect-h-10'><img class='object-center object-contain border text-center rounded shadow ' src=". $image ."></div>";
+                            } else {
+                                return "-";
+                            }
                         })
                         ->editColumn('dob', function($tradingAnimal){
                             return $tradingAnimal->dob->toFormattedDateString();
@@ -64,49 +71,38 @@ class TradingAnimalController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $this->validate($request, [
-                'type' => 'required|string|max:255',
-                'price' => 'required|numeric',
-                'location' => 'required|string',
-                'dated' => 'required|date',
-                'dob' => 'required|date',
-                'image' => 'required|mimes:jpeg,jpg,png,bmp',
-                "phone" => "required|string|max:20"
-            ]);
+        $this->validate($request, [
+            'type' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'location' => 'required|string',
+            'dated' => 'required|date',
+            'dob' => 'required|date',
+            'images' => 'required|array|min:1|max:5',
+            'images.*' => 'required|mimes:jpeg,jpg,png,bmp',
+            "phone" => "required|string|max:20"
+        ]);
 
-            $imageName = time() . $request->image->getClientOriginalName();
-            if($request->image->move('images/trading_animal/', $imageName)){
-                $tradingAnimal = TradingAnimal::create(array_merge($request->all(), [
-                    'user_id' => auth()->id(),
-                    'image' => 'images/trading_animal/' . $imageName
-                ]));
+        $tradingAnimal = TradingAnimal::create([
+            'type' => $request->type,
+            'price' => $request->price,
+            'location' => $request->location,
+            'dated' => $request->dated,
+            'dob' => $request->dob,
+            'phone' => $request->phone,
+            'user_id' => auth()->id()
+        ]);
 
-                return response()->json([
-                    'code' => 200,
-                    'message' => 'Trading Animal Created Successfully',
-                    'data' => $tradingAnimal
-                ]);
-            } else {
-                return response()->json([
-                    'code' => 500,
-                    'message' => 'Error Uploading Image.',
-                    'data' => null
-                ], Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
-        } catch (ValidationException $exception){
-            return response()->json([
-                'code' => 422,
-                'message' => $exception->getMessage(),
-                'data' => $exception->errors()
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        } catch (\Exception $exception){
-            return response()->json([
-                'code' => 500,
-                'message' => $exception->getMessage(),
-                'data' => null
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        foreach($request->images as $uploadedImage){
+            $image = new Image();
+            $imageName = time() . $uploadedImage->getClientOriginalName();
+            $uploadedImage->move('images/trading_animal/', $imageName);
+
+            $image->image = 'images/trading_animal/' . $imageName;
+
+            $tradingAnimal->images()->save($image);
         }
+
+        return response()->success($tradingAnimal, "Trading Animal Created Successfully");
     }
 
     /**

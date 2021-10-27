@@ -72,11 +72,11 @@ class Handler extends ExceptionHandler
             }
         });
 
-        $this->renderable(function(Exception $ex, Request $request){
-            if ($request->is('api/*')) {
+        // $this->renderable(function(Exception $ex, Request $request){
+        //     if ($request->is('api/*')) {
 
-                return response()->error(null, $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
-        });
+        //         return response()->error(null, $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        //     }
+        // });
     }
 }

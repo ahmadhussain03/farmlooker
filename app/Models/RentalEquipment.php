@@ -61,6 +61,14 @@ class RentalEquipment extends Model
         return asset($value);
     }
 
+    /**
+    * Get all of the resource images.
+    */
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

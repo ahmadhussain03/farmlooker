@@ -17,7 +17,7 @@ class HomeTradingAnimalController extends Controller
     public function index(Request $request)
     {
         try {
-            $tradingAnimalQuery = TradingAnimal::query()->with(['user']);
+            $tradingAnimalQuery = TradingAnimal::query()->with(['user', 'images']);
 
             if($request->has('type')){
                 $tradingAnimalQuery->where('type', 'like', '%' . $request->type . '%');

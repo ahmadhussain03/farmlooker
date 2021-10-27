@@ -58,9 +58,12 @@ class TradingAnimal extends Model
         'user_id'
     ];
 
-    public function getImageAttribute($value)
+    /**
+     * Get all of the resource images..
+     */
+    public function images()
     {
-        return asset($value);
+        return $this->morphMany(Image::class, 'imageable');
     }
 
     public function user()

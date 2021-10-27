@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SinglePageController;
 use App\Http\Controllers\NotificationController;
 use App\Models\City;
+use App\Models\TradingAnimal;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +22,9 @@ use App\Models\City;
 */
 
 Route::get('/test', function(){
-    dd(City::where('state_id', 6844)->count());
+    $tradingAnimal = TradingAnimal::with(['images'])->skip(1)->take(1)->first();
+
+    dd(asset($tradingAnimal->images()->first()->image));
 });
 
 Route::get('subscription/success', [PaymentController::class, 'success'])->name('subscription.success');
