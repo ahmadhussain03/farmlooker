@@ -21,12 +21,6 @@ use App\Models\TradingAnimal;
 |
 */
 
-Route::get('/test', function(){
-    $tradingAnimal = TradingAnimal::with(['images'])->skip(1)->take(1)->first();
-
-    dd(asset($tradingAnimal->images()->first()->image));
-});
-
 Route::get('subscription/success', [PaymentController::class, 'success'])->name('subscription.success');
 Route::get('subscription/cancel', [PaymentController::class, 'cancel'])->name('subscription.cancel');
 

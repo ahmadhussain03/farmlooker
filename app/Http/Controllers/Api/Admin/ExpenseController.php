@@ -19,10 +19,10 @@ class ExpenseController extends Controller
          /** @var App\Models\User */
          $currentUser = auth()->user();
          $expenseQuery = $currentUser->expenses()->with(['farm'])->orderBy('dated', 'desc');
+         $expenseQuery->select(["expenses.dated", "expenses.expenseable_type", "expenses.farm_id", "expenses.amount", "expenses.id as expenseId", "farms.*"]);
 
         if($request->has('client') && $request->client === 'datatable'){
 
-            $expenseQuery->select(["expenses.dated", "expenses.expenseable_type", "expenses.farm_id", "expenses.amount", "expenses.id as expenseId", "farms.*"]);
             return DataTables::eloquent($expenseQuery)
                ->addColumn('expense_type', function($expense){
                    switch($expense->expenseable_type){
@@ -48,9 +48,12 @@ class ExpenseController extends Controller
        }
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
-        $purchaseAnimals = $currentUser->animals()->where('animals.add_as', 'purchased')->paginate($perPage);
 
-        return response()->success($purchaseAnimals);
+        $expenses = $expenseQuery->paginate($perPage);
+
+        // $purchaseAnimals = $currentUser->animals()->where('animals.add_as', 'purchased')->paginate($perPage);
+
+        return response()->success($expenses);
     }
 
     public function show()
