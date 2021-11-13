@@ -68,7 +68,7 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function(AuthenticationException $ex, Request $request){
             if ($request->is('api/*')) {
-                return response()->error(null, $ex->getMessage(), 401);
+                return response()->error(null, $ex->getMessage(), Response::HTTP_UNAUTHORIZED);
             }
         });
 
