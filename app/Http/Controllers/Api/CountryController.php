@@ -20,7 +20,11 @@ class CountryController extends Controller
             $countriesQuery->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $countries = $countriesQuery->paginate($perPage);
+        if($request->has('all')){
+            $countries = $countriesQuery->get();
+        } else {
+            $countries = $countriesQuery->paginate($perPage);
+        }
 
         return response()->success($countries);
     }
@@ -35,7 +39,12 @@ class CountryController extends Controller
             $statesQuery->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $states = $statesQuery->paginate($perPage);
+        if($request->has('all')){
+            $states = $statesQuery->get();
+        } else {
+            $states = $statesQuery->paginate($perPage);
+        }
+
 
         return response()->success($states);
     }
@@ -50,7 +59,12 @@ class CountryController extends Controller
             $citiesQuery->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $cities = $citiesQuery->paginate($perPage);
+        if($request->has('all')){
+            $cities = $citiesQuery->get();
+        } else {
+            $cities = $citiesQuery->paginate($perPage);
+        }
+
 
         return response()->success($cities);
     }
