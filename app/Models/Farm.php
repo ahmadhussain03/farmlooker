@@ -36,16 +36,11 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Farm extends Model
 {
-    use HasFactory, Searchable;
+    use HasFactory;
 
     protected $guarded = [];
 
     protected $hidden = ['pivot'];
-
-    public $searchableColumns = [
-        'location',
-        'area_of_hector',
-    ];
 
     public function city()
     {

@@ -6,9 +6,6 @@ use DataTables;
 use App\Models\Worker;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class WorkerController extends Controller
 {
@@ -21,7 +18,7 @@ class WorkerController extends Controller
     {
         /** @var App\Models\User */
         $currentUser = auth()->user();
-        $workerQuery = $currentUser->workers();
+        $workerQuery = $currentUser->workers()->with(['farm']);
 
         if($request->has('client') && $request->client === 'datatable'){
             $workerQuery->with(['farm'])->select(["*", "workers.id as workerId", "workers.name as workerName"]);

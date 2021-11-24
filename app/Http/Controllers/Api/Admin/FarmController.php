@@ -25,21 +25,36 @@ class FarmController extends Controller
 
         $farmsQuery = $authUser->farms()->with(['city']);
 
-        if($request->has('client') && $request->client === 'datatable'){
-            $farmsQuery->select(["*", "farms.id as farmId"]);
-            return DataTables::eloquent($farmsQuery)
-                ->setRowId('farmId')
-                ->addIndexColumn()
-                ->toJson();
-        }
-
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
         if($request->has('search')){
-            $farmsQuery->where('farms.name', 'like', '%' . $request->search . '%');
+
+            $search = $request->search;
+
+            $farmsQuery
+                ->where('farms.area_of_hector', 'like', '%' . $search . '%')
+                ->orWhere('farms.name', 'like', '%' . $search . '%')
+                ->orWhereHas('city', function($query) use ($search) {
+                    $query->where('name', 'like', '%' . $search . '%');
+                });
         }
 
-        $farms = $farmsQuery->search()->paginate($perPage);
+        if($request->has('sort_field') && $request->has('sort_order')){
+            $relationArray = explode(".", $request->sort_field);
+            if(count($relationArray) > 1){
+                $relation = $relationArray[0];
+                $field = $relationArray[1];
+                $sortOrder = $request->sort_order;
+
+                $farmsQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                    $query->orderBy($field, $sortOrder);
+                }]);
+            } else {
+                $farmsQuery->orderBy($request->sort_field, $request->sort_order);
+            }
+        }
+
+        $farms = $farmsQuery->paginate($perPage);
 
         return response()->success($farms);
     }

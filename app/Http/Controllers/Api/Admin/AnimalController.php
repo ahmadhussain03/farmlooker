@@ -52,7 +52,38 @@ class AnimalController extends Controller
         }
 
         if($request->has('search')){
-            $animalQuery->where('animals.auid', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+            $animalQuery
+                ->where('animals.auid', 'like', '%' . $search . '%')
+                ->orWhere('animals.animal_id', 'like', '%' . $search . '%')
+                ->orWhere('animals.disease', 'like', '%' . $search . '%')
+                ->orWhere('animals.dob', 'like', '%' . $search . '%')
+                ->orWhere('animals.add_as', 'like', '%' . $search . '%')
+                ->orWhere('animals.sex', 'like', '%' . $search . '%')
+                ->orWhereHas('farm', function($query) use ($search){
+                    $query->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('type', function($query) use ($search){
+                    $query->where('type', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('breed', function($query) use ($search){
+                    $query->where('breed', 'like', '%' . $search . '%');
+                });
+        }
+
+        if($request->has('sort_field') && $request->has('sort_order')){
+            $relationArray = explode(".", $request->sort_field);
+            if(count($relationArray) > 1){
+                $relation = $relationArray[0];
+                $field = $relationArray[1];
+                $sortOrder = $request->sort_order;
+
+                $animalQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                    $query->orderBy($field, $sortOrder);
+                }]);
+            } else {
+                $animalQuery->orderBy($request->sort_field, $request->sort_order);
+            }
         }
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
