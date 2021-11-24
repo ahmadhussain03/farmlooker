@@ -38,6 +38,17 @@ class IncomeController extends Controller
                 ->toJson();
         }
 
+        if($request->has('search') && $request->search != ""){
+            $search = $request->search;
+            $incomeQuery
+                ->where('amount', 'like', '%' . $search . '%')
+                ->orWhere('incomeable_type', 'like', '%' . $search . '%')
+                ->orWhere('dated', 'like', '%' . $search . '%')
+                ->orWhereHas('farm', function($query) use ($search){
+                    $query->where('name', 'like', '%' . $search . '%');
+                });
+        }
+
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
         $incomes = $incomeQuery->paginate($perPage);

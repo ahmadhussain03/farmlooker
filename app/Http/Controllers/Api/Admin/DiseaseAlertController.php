@@ -24,15 +24,40 @@ class DiseaseAlertController extends Controller
             $currentUser = auth()->user();
             $diseaseAlertQuery = $currentUser->diseaseAlerts()->with('animal');
 
-            if($request->has('client') && $request->client === 'datatable'){
-                $diseaseAlertQuery->select(["*", "disease_alerts.id as diseaseId"]);
+            // if($request->has('client') && $request->client === 'datatable'){
+            //     $diseaseAlertQuery->select(["*", "disease_alerts.id as diseaseId"]);
 
-                return DataTables::eloquent($diseaseAlertQuery)->editColumn('symptoms', function($alert){
-                    return implode(", ", $alert->symptoms);
-                })
-                ->setRowId('diseaseId')
-                ->addIndexColumn()
-                ->toJson();
+            //     return DataTables::eloquent($diseaseAlertQuery)->editColumn('symptoms', function($alert){
+            //         return implode(", ", $alert->symptoms);
+            //     })
+            //     ->setRowId('diseaseId')
+            //     ->addIndexColumn()
+            //     ->toJson();
+            // }
+
+            if($request->has('search') && $request->search != ""){
+                $search = $request->search;
+                $diseaseAlertQuery
+                    ->where('description', 'like', '%' . $search . '%')
+                    ->orWhere('symptoms', 'like', '%' . $search . '%')
+                    ->orWhereHas('animal', function($query) use ($search){
+                        $query->where('auid', 'like', '%' . $search . '%')->orWhere('animal_id', 'like', '%' . $search . '%');
+                    });
+            }
+
+            if($request->has('sort_field') && $request->has('sort_order')){
+                $relationArray = explode(".", $request->sort_field);
+                if(count($relationArray) > 1){
+                    $relation = $relationArray[0];
+                    $field = $relationArray[1];
+                    $sortOrder = $request->sort_order;
+
+                    $diseaseAlertQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                        $query->orderBy($field, $sortOrder);
+                    }]);
+                } else {
+                    $diseaseAlertQuery->orderBy($request->sort_field, $request->sort_order);
+                }
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
@@ -178,5 +203,25 @@ class DiseaseAlertController extends Controller
                 'data' => null
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Delete Disease Alerts using Bulk IDs
+     *
+     * @param $animal
+     * @return JsonResponse
+     */
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'alerts' => 'required|array|min:1',
+            'alerts.*' => 'integer'
+        ]);
+
+         /** @var App\Models\User */
+         $currentUser = auth()->user();
+         $currentUser->diseaseAlerts()->whereIn('disease_alerts.id', $request->alerts)->delete();
+
+        return response()->success(null, "Disease Alerts Deleted Successfully!");
     }
 }

@@ -32,16 +32,16 @@ class AnimalController extends Controller
         $currentUser = auth()->user();
         $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm', 'type', 'breed']);
 
-        if($request->has('client') && $request->client === 'datatable'){
-            $animalQuery->select(["*", "animals.id as animalId"]);
-            return DataTables::eloquent($animalQuery)
-                ->editColumn('dob', function($animal){
-                    return $animal->dob->toFormattedDateString();
-                })
-                ->setRowId('animalId')
-                ->addIndexColumn()
-                ->toJson();
-        }
+        // if($request->has('client') && $request->client === 'datatable'){
+        //     $animalQuery->select(["*", "animals.id as animalId"]);
+        //     return DataTables::eloquent($animalQuery)
+        //         ->editColumn('dob', function($animal){
+        //             return $animal->dob->toFormattedDateString();
+        //         })
+        //         ->setRowId('animalId')
+        //         ->addIndexColumn()
+        //         ->toJson();
+        // }
 
         if($request->has('sex')){
             $animalQuery->where('sex', $request->sex);
@@ -51,7 +51,7 @@ class AnimalController extends Controller
             $animalQuery->where('type_id', $request->type);
         }
 
-        if($request->has('search')){
+        if($request->has('search') && $request->search != ""){
             $search = $request->search;
             $animalQuery
                 ->where('animals.auid', 'like', '%' . $search . '%')
@@ -305,5 +305,25 @@ class AnimalController extends Controller
                 'data' => null
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Delete Animal using Bulk IDs
+     *
+     * @param $animal
+     * @return JsonResponse
+     */
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'animals' => 'required|array|min:1',
+            'animals.*' => 'integer'
+        ]);
+
+         /** @var App\Models\User */
+         $currentUser = auth()->user();
+         $currentUser->animals()->whereIn('animals.id', $request->animals)->delete();
+
+        return response()->success(null, "Animals Deleted Successfully!");
     }
 }

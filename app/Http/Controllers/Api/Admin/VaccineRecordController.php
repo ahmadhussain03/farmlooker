@@ -26,21 +26,48 @@ class VaccineRecordController extends Controller
             $vaccineRecordQuery = $currentUser->vaccineRecords();
             $vaccineRecordQuery->with(['animal']);
 
-            if($request->has('client') && $request->client === 'datatable'){
-                $vaccineRecordQuery->select(["*", "vaccine_records.id as recordId"]);
-                return DataTables::eloquent($vaccineRecordQuery)
-                    ->setRowId('recordId')
-                    ->addIndexColumn()
-                    ->editColumn('certificate_image', function($vaccineRecord){
-                        return "<img class='h-16 w-full p-1 border text-center rounded shadow' src=". asset($vaccineRecord->certificate_image) .">";
-                    })
-                    ->rawColumns(['certificate_image'])
-                    ->toJson();
-            }
+            // if($request->has('client') && $request->client === 'datatable'){
+            //     $vaccineRecordQuery->select(["*", "vaccine_records.id as recordId"]);
+            //     return DataTables::eloquent($vaccineRecordQuery)
+            //         ->setRowId('recordId')
+            //         ->addIndexColumn()
+            //         ->editColumn('certificate_image', function($vaccineRecord){
+            //             return "<img class='h-16 w-full p-1 border text-center rounded shadow' src=". asset($vaccineRecord->certificate_image) .">";
+            //         })
+            //         ->rawColumns(['certificate_image'])
+            //         ->toJson();
+            // }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $vaccineRecords = $vaccineRecordQuery->search()->paginate($perPage);
+            if($request->has('search') && $request->search != ""){
+                $search = $request->search;
+                $vaccineRecordQuery
+                    ->where('vaccine_records.name', 'like', '%' . $search . '%')
+                    ->orWhere('reason', 'like', '%' . $search . '%')
+                    ->orWhere('date', 'like', '%' . $search . '%')
+                    ->orWhereHas('animal', function($query) use ($search){
+                        $query->where('auid', 'like', '%' . $search . '%')->orWhere('animal_id', 'like', '%' . $search . '%');
+                    });
+            }
+
+
+            if($request->has('sort_field') && $request->has('sort_order')){
+                $relationArray = explode(".", $request->sort_field);
+                if(count($relationArray) > 1){
+                    $relation = $relationArray[0];
+                    $field = $relationArray[1];
+                    $sortOrder = $request->sort_order;
+
+                    $vaccineRecordQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                        $query->orderBy($field, $sortOrder);
+                    }]);
+                } else {
+                    $vaccineRecordQuery->orderBy($request->sort_field, $request->sort_order);
+                }
+            }
+
+            $vaccineRecords = $vaccineRecordQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
@@ -236,5 +263,25 @@ class VaccineRecordController extends Controller
                 'data' => null
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+     /**
+     * Delete Vaccine Record using Bulk IDs
+     *
+     * @param $animal
+     * @return JsonResponse
+     */
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'records' => 'required|array|min:1',
+            'records.*' => 'integer'
+        ]);
+
+         /** @var App\Models\User */
+         $currentUser = auth()->user();
+         $currentUser->vaccineRecords()->whereIn('vaccine_records.id', $request->records)->delete();
+
+        return response()->success(null, "Vaccine Records Deleted Successfully!");
     }
 }

@@ -47,6 +47,17 @@ class ExpenseController extends Controller
                ->toJson();
        }
 
+       if($request->has('search') && $request->search != ""){
+            $search = $request->search;
+            $expenseQuery
+                ->where('amount', 'like', '%' . $search . '%')
+                ->orWhere('expenseable_type', 'like', '%' . $search . '%')
+                ->orWhere('dated', 'like', '%' . $search . '%')
+                ->orWhereHas('farm', function($query) use ($search){
+                    $query->where('name', 'like', '%' . $search . '%');
+                });
+        }
+
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
         $expenses = $expenseQuery->paginate($perPage);

@@ -30,6 +30,8 @@ use App\Http\Controllers\Api\Admin\OrderFeedExpenseController;
 use App\Http\Controllers\Api\Admin\EmailVerificationController;
 use App\Http\Controllers\Api\Admin\HomeTradingAnimalController;
 use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
+use App\Models\RentalEquipment;
+use App\Models\TradingAnimal;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,27 +80,34 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     // Animal Routes
     Route::apiResource('animal', AnimalController::class);
     Route::get('animal/{id}/tree', [AnimalController::class, 'tree']);
+    Route::delete('/animal', [AnimalController::class, 'delete']);
 
     // Order Feed Routes
     Route::apiResource('order_feed', OrderFeedController::class);
 
     // Rental Equipment Routes
     Route::apiResource('rental_equipment', RentalEquipmentController::class);
+    Route::delete('rental_equipment', [RentalEquipmentController::class, 'delete']);
 
      // Animal Trading Routes
      Route::apiResource('trading_animal', TradingAnimalController::class);
+     Route::delete('trading_animal', [TradingAnimalController::class, 'delete']);
 
     // Disease Alert Routes
     Route::apiResource('disease_alert', DiseaseAlertController::class)->except(['update']);
+    Route::delete('disease_alert', [DiseaseAlertController::class, 'delete']);
 
     // Vaccine Record Routes
     Route::apiResource('vaccine_record', VaccineRecordController::class);
+    Route::delete('vaccine_record', [VaccineRecordController::class, 'delete']);
 
     // Workers Routes
     Route::apiResource('worker', WorkerController::class);
+    Route::delete('worker', [WorkerController::class, 'delete']);
 
     // Assets Routes
     Route::apiResource('asset', AssetController::class);
+    Route::delete('asset', [AssetController::class, 'delete']);
 
     // Summary Routes
     Route::get('/summary', [SummaryController::class, 'index']);

@@ -23,31 +23,57 @@ class TradingAnimalController extends Controller
         try {
             $tradingAnimalQuery = TradingAnimal::query()->with(['images'])->where('user_id', auth()->id());
 
-            if($request->has('client') && $request->client === 'datatable'){
-                return DataTables::eloquent($tradingAnimalQuery)
-                        ->setRowId('id')
-                        ->addColumn('image', function($tradingAnimal){
-                            $image = $tradingAnimal->images()->first();
-                            if($image){
-                                $image = asset($image->image);
-                                return "<div class='aspect-w-16 aspect-h-10'><img class='object-center object-contain border text-center rounded shadow ' src=". $image ."></div>";
-                            } else {
-                                return "-";
-                            }
-                        })
-                        ->editColumn('dob', function($tradingAnimal){
-                            return $tradingAnimal->dob->toFormattedDateString();
-                        })
-                        ->editColumn('dated', function($tradingAnimal){
-                            return $tradingAnimal->dated->toFormattedDateString();
-                        })
-                        ->rawColumns(['image'])
-                        ->addIndexColumn()->toJson();
+            // if($request->has('client') && $request->client === 'datatable'){
+            //     return DataTables::eloquent($tradingAnimalQuery)
+            //             ->setRowId('id')
+            //             ->addColumn('image', function($tradingAnimal){
+            //                 $image = $tradingAnimal->images()->first();
+            //                 if($image){
+            //                     $image = asset($image->image);
+            //                     return "<div class='aspect-w-16 aspect-h-10'><img class='object-center object-contain border text-center rounded shadow ' src=". $image ."></div>";
+            //                 } else {
+            //                     return "-";
+            //                 }
+            //             })
+            //             ->editColumn('dob', function($tradingAnimal){
+            //                 return $tradingAnimal->dob->toFormattedDateString();
+            //             })
+            //             ->editColumn('dated', function($tradingAnimal){
+            //                 return $tradingAnimal->dated->toFormattedDateString();
+            //             })
+            //             ->rawColumns(['image'])
+            //             ->addIndexColumn()->toJson();
+            // }
+
+            if($request->has('search') && $request->search != ""){
+                $search = $request->search;
+                $tradingAnimalQuery
+                    ->where('type', 'like', '%' . $search . '%')
+                    ->orWhere('price', 'like', '%' . $search . '%')
+                    ->orWhere('location', 'like', '%' . $search . '%')
+                    ->orWhere('dated', 'like', '%' . $search . '%')
+                    ->orWhere('dob', 'like', '%' . $search . '%')
+                    ->orWhere('phone', 'like', '%' . $search . '%');
+            }
+
+            if($request->has('sort_field') && $request->has('sort_order')){
+                $relationArray = explode(".", $request->sort_field);
+                if(count($relationArray) > 1){
+                    $relation = $relationArray[0];
+                    $field = $relationArray[1];
+                    $sortOrder = $request->sort_order;
+
+                    $tradingAnimalQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                        $query->orderBy($field, $sortOrder);
+                    }]);
+                } else {
+                    $tradingAnimalQuery->orderBy($request->sort_field, $request->sort_order);
+                }
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-            $tradingAnimals = $tradingAnimalQuery->search()->paginate($perPage);
+            $tradingAnimals = $tradingAnimalQuery->paginate($perPage);
 
             return response()->json([
                 'code' => 200,
@@ -206,7 +232,7 @@ class TradingAnimalController extends Controller
     public function destroy($trading_animal)
     {
         try {
-            $tradingAnimal = TradingAnimal::findOrFail($trading_animal);
+            $tradingAnimal = TradingAnimal::where('user_id', auth()->id())->where('id', $trading_animal)->firstOrFail();
 
             if(file_exists($tradingAnimal->getRawOriginal('image'))){
                 unlink($tradingAnimal->getRawOriginal('image'));
@@ -232,5 +258,25 @@ class TradingAnimalController extends Controller
                 'data' => null
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Delete Trading Animals Animal using Bulk IDs
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'tradings' => 'required|array|min:1',
+            'tradings.*' => 'integer'
+        ]);
+
+         /** @var App\Models\User */
+         $currentUser = auth()->user();
+         TradingAnimal::where('user_id', $currentUser->id)->whereIn('id', $request->tradings)->delete();
+
+        return response()->success(null, "Trading Animals Deleted Successfully!");
     }
 }

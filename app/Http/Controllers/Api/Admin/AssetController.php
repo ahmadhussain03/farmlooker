@@ -26,21 +26,49 @@ class AssetController extends Controller
             $currentUser = auth()->user();
             $assetQuery = $currentUser->assets()->with(['farm']);
 
-            if($request->has('client') && $request->client === 'datatable'){
-                $assetQuery->select(["*", "assets.id as assetId"]);
-                return DataTables::eloquent($assetQuery)->editColumn('purchase_date', function($asset){
-                    return $asset->purchase_date->toFormattedDateString();
-                })
-                ->setRowId('assetId')
-                ->editColumn('image', function($asset){
-                    if($asset->image){
-                        return "<img class='h-16 w-full p-1 border text-center rounded shadow' src=". asset($asset->image) .">";
-                    } else {
-                        return "";
-                    }
-                })
-                ->rawColumns(['image'])
-                ->addIndexColumn()->toJson();
+            // if($request->has('client') && $request->client === 'datatable'){
+            //     $assetQuery->select(["*", "assets.id as assetId"]);
+            //     return DataTables::eloquent($assetQuery)->editColumn('purchase_date', function($asset){
+            //         return $asset->purchase_date->toFormattedDateString();
+            //     })
+            //     ->setRowId('assetId')
+            //     ->editColumn('image', function($asset){
+            //         if($asset->image){
+            //             return "<img class='h-16 w-full p-1 border text-center rounded shadow' src=". asset($asset->image) .">";
+            //         } else {
+            //             return "";
+            //         }
+            //     })
+            //     ->rawColumns(['image'])
+            //     ->addIndexColumn()->toJson();
+            // }
+
+
+            if($request->has('search') && $request->search != ""){
+                $search = $request->search;
+                $assetQuery
+                    ->where('type', 'like', '%' . $search . '%')
+                    ->orWhere('price', 'like', '%' . $search . '%')
+                    ->orWhere('purchase_date', 'like', '%' . $search . '%')
+                    ->orWhere('location', 'like', '%' . $search . '%')
+                    ->orWhereHas('farm', function($query) use ($search){
+                        $query->where('name', 'like', '%' . $search . '%');
+                    });
+            }
+
+            if($request->has('sort_field') && $request->has('sort_order')){
+                $relationArray = explode(".", $request->sort_field);
+                if(count($relationArray) > 1){
+                    $relation = $relationArray[0];
+                    $field = $relationArray[1];
+                    $sortOrder = $request->sort_order;
+
+                    $assetQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                        $query->orderBy($field, $sortOrder);
+                    }]);
+                } else {
+                    $assetQuery->orderBy($request->sort_field, $request->sort_order);
+                }
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
@@ -243,5 +271,25 @@ class AssetController extends Controller
                 'data' => null
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Delete Assets using Bulk IDs
+     *
+     * @param $animal
+     * @return JsonResponse
+     */
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'assets' => 'required|array|min:1',
+            'assets.*' => 'integer'
+        ]);
+
+         /** @var App\Models\User */
+         $currentUser = auth()->user();
+         $currentUser->assets()->whereIn('assets.id', $request->assets)->delete();
+
+        return response()->success(null, "Assets Deleted Successfully!");
     }
 }

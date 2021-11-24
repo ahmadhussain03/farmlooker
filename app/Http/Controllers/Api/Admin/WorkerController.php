@@ -20,12 +20,42 @@ class WorkerController extends Controller
         $currentUser = auth()->user();
         $workerQuery = $currentUser->workers()->with(['farm']);
 
-        if($request->has('client') && $request->client === 'datatable'){
-            $workerQuery->with(['farm'])->select(["*", "workers.id as workerId", "workers.name as workerName"]);
-            return DataTables::eloquent($workerQuery)
-                ->setRowId('workerId')
-                ->addIndexColumn()
-                ->toJson();
+        // if($request->has('client') && $request->client === 'datatable'){
+        //     $workerQuery->with(['farm'])->select(["*", "workers.id as workerId", "workers.name as workerName"]);
+        //     return DataTables::eloquent($workerQuery)
+        //         ->setRowId('workerId')
+        //         ->addIndexColumn()
+        //         ->toJson();
+        // }
+
+        if($request->has('search') && $request->search != ""){
+            $search = $request->search;
+            $workerQuery
+                ->where('workers.name', 'like', '%' . $search . '%')
+                ->orWhere('phone_no', 'like', '%' . $search . '%')
+                ->orWhere('address', 'like', '%' . $search . '%')
+                ->orWhere('pay', 'like', '%' . $search . '%')
+                ->orWhere('id_or_passport', 'like', '%' . $search . '%')
+                ->orWhere('duty', 'like', '%' . $search . '%')
+                ->orWhere('joining_date', 'like', '%' . $search . '%')
+                ->orWhereHas('farm', function($query) use ($search){
+                    $query->where('name', 'like', '%' . $search . '%');
+                });
+        }
+
+        if($request->has('sort_field') && $request->has('sort_order')){
+            $relationArray = explode(".", $request->sort_field);
+            if(count($relationArray) > 1){
+                $relation = $relationArray[0];
+                $field = $relationArray[1];
+                $sortOrder = $request->sort_order;
+
+                $workerQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                    $query->orderBy($field, $sortOrder);
+                }]);
+            } else {
+                $workerQuery->orderBy($request->sort_field, $request->sort_order);
+            }
         }
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
@@ -126,5 +156,25 @@ class WorkerController extends Controller
         $worker->delete();
 
         return response()->success(null, "Worker Deleted Successfully!");
+    }
+
+    /**
+     * Delete Worker using Bulk IDs
+     *
+     * @param $animal
+     * @return JsonResponse
+     */
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'workers' => 'required|array|min:1',
+            'workers.*' => 'integer'
+        ]);
+
+         /** @var App\Models\User */
+         $currentUser = auth()->user();
+         $currentUser->workers()->whereIn('workers.id', $request->workers)->delete();
+
+        return response()->success(null, "Workers Deleted Successfully!");
     }
 }

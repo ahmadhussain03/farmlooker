@@ -23,23 +23,49 @@ class RentalEquipmentController extends Controller
         try {
             $rentalEquipmentQuery = RentalEquipment::query()->with(['images'])->where('user_id', auth()->id());
 
-            if($request->has('client') && $request->client === 'datatable'){
-                return DataTables::eloquent($rentalEquipmentQuery)
-                        ->setRowId('id')
-                        ->addColumn('image', function($rentalEquipment){
-                            $image = $rentalEquipment->images()->first();
-                            if($image){
-                                $image = asset($image->image);
-                                return "<div class='aspect-w-16 aspect-h-10'><img class='object-center object-contain border text-center rounded shadow ' src=". $image ."></div>";
-                            } else {
-                                return "-";
-                            }
-                        })
-                        ->editColumn('dated', function($rentalEquipment){
-                            return $rentalEquipment->dated->toFormattedDateString();
-                        })
-                        ->rawColumns(['image'])
-                        ->addIndexColumn()->toJson();
+            // if($request->has('client') && $request->client === 'datatable'){
+            //     return DataTables::eloquent($rentalEquipmentQuery)
+            //             ->setRowId('id')
+            //             ->addColumn('image', function($rentalEquipment){
+            //                 $image = $rentalEquipment->images()->first();
+            //                 if($image){
+            //                     $image = asset($image->image);
+            //                     return "<div class='aspect-w-16 aspect-h-10'><img class='object-center object-contain border text-center rounded shadow ' src=". $image ."></div>";
+            //                 } else {
+            //                     return "-";
+            //                 }
+            //             })
+            //             ->editColumn('dated', function($rentalEquipment){
+            //                 return $rentalEquipment->dated->toFormattedDateString();
+            //             })
+            //             ->rawColumns(['image'])
+            //             ->addIndexColumn()->toJson();
+            // }
+
+            if($request->has('search') && $request->search != ""){
+                $search = $request->search;
+                $rentalEquipmentQuery
+                    ->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('model', 'like', '%' . $search . '%')
+                    ->orWhere('rent', 'like', '%' . $search . '%')
+                    ->orWhere('location', 'like', '%' . $search . '%')
+                    ->orWhere('dated', 'like', '%' . $search . '%')
+                    ->orWhere('phone', 'like', '%' . $search . '%');
+            }
+
+            if($request->has('sort_field') && $request->has('sort_order')){
+                $relationArray = explode(".", $request->sort_field);
+                if(count($relationArray) > 1){
+                    $relation = $relationArray[0];
+                    $field = $relationArray[1];
+                    $sortOrder = $request->sort_order;
+
+                    $rentalEquipmentQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                        $query->orderBy($field, $sortOrder);
+                    }]);
+                } else {
+                    $rentalEquipmentQuery->orderBy($request->sort_field, $request->sort_order);
+                }
             }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
@@ -203,7 +229,7 @@ class RentalEquipmentController extends Controller
     public function destroy($rental_equipment)
     {
         try {
-            $rentalEquipment = RentalEquipment::findOrFail($rental_equipment);
+            $rentalEquipment = RentalEquipment::where('user_id', auth()->id())->where('id', $rental_equipment)->firstOrFail();
 
             if(file_exists($rentalEquipment->getRawOriginal('image'))){
                 unlink($rentalEquipment->getRawOriginal('image'));
@@ -229,5 +255,25 @@ class RentalEquipmentController extends Controller
                 'data' => null
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+     /**
+     * Delete Trading Animals Animal using Bulk IDs
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'equipments' => 'required|array|min:1',
+            'equipments.*' => 'integer'
+        ]);
+
+         /** @var App\Models\User */
+         $currentUser = auth()->user();
+         RentalEquipment::where('user_id', $currentUser->id)->whereIn('id', $request->equipments)->delete();
+
+        return response()->success(null, "Rental Equipments Deleted Successfully!");
     }
 }
