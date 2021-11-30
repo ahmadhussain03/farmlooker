@@ -209,6 +209,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function farm()
     {
-        return $this->belongsToMany(Farm::class)->first();
+        return $this->hasOneDeep(Farm::class, ['farm_user']);
     }
 }

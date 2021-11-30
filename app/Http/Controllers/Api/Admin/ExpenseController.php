@@ -62,8 +62,6 @@ class ExpenseController extends Controller
 
         $expenses = $expenseQuery->paginate($perPage);
 
-        // $purchaseAnimals = $currentUser->animals()->where('animals.add_as', 'purchased')->paginate($perPage);
-
         return response()->success($expenses);
     }
 

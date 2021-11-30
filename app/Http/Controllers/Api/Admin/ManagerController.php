@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -21,7 +20,22 @@ class ManagerController extends Controller
     {
         try {
 
-            $managerQuery = User::query()->where('user_type', 'moderator')->where('parent_id', auth()->id());
+            $managerQuery = User::query()->with(['farm'])->where('user_type', 'moderator')->where('parent_id', auth()->id());
+
+            if($request->has('sort_field') && $request->has('sort_order')){
+                $relationArray = explode(".", $request->sort_field);
+                if(count($relationArray) > 1){
+                    $relation = $relationArray[0];
+                    $field = $relationArray[1];
+                    $sortOrder = $request->sort_order;
+
+                    $managerQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                        $query->orderBy($field, $sortOrder);
+                    }]);
+                } else {
+                    $managerQuery->orderBy($request->sort_field, $request->sort_order);
+                }
+            }
 
             $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
@@ -55,18 +69,25 @@ class ManagerController extends Controller
                 "password" => "required|confirmed|min:6|max:255",
                 "first_name" => "required|string|max:255",
                 "last_name" => "required|string|max:255",
-                "phone_no" => "required|string|max:20"
+                "phone_no" => "required|string|max:20",
+                "farm_id" => 'required|integer|min:1'
             ]);
+
+            /** @var App\Models\User */
+            $currentUser = auth()->user();
+            $farm = $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
 
             $user = User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'phone_no' => $request->phone_no,
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'parent_id' => auth()->id(),
+                'password' => bcrypt($request->password),
+                'parent_id' => $currentUser->id,
             ]);
 
+
+            $user->farms()->attach($farm);
             $user->forceFill(['user_type' => 'moderator'])->save();
 
             return response()->json([
@@ -97,7 +118,11 @@ class ManagerController extends Controller
      */
     public function show($id)
     {
-        //
+        /** @var App\Models\User */
+        $currentUser = auth()->user();
+        $manager = User::with(['farm'])->where('user_type', 'moderator')->where('parent_id', $currentUser->id)->where('id', $id)->firstOrFail();
+
+        return response()->success($manager);
     }
 
     /**
@@ -113,12 +138,20 @@ class ManagerController extends Controller
             $manager = User::where('id', $manager)->where('user_type', 'moderator')->where('parent_id', auth()->id())->firstOrFail();
 
             $data = $this->validate($request, [
-                "email" => "nullable|email|max:255|unique:users,email," . $manager->id,
-                "password" => "nullable|confirmed|min:6|max:255",
-                "first_name" => "nullable|string|max:255",
-                "last_name" => "nullable|string|max:255",
-                "phone_no" => "nullable|string|max:20"
+                "email" => "email|max:255|unique:users,email," . $manager->id,
+                "password" => "confirmed|min:6|max:255",
+                "first_name" => "string|max:255",
+                "last_name" => "string|max:255",
+                "phone_no" => "string|max:20",
+                "farm_id" => 'integer|min:1'
             ]);
+
+            if($request->farm_id){
+                /** @var App\Models\User */
+                $currentUser = auth()->user();
+                $farm = $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
+                $manager->farms()->sync($farm);
+            }
 
             $manager->update($data);
 
@@ -173,5 +206,25 @@ class ManagerController extends Controller
                 'data' => null
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    /**
+     * Delete Manager using Bulk IDs
+     *
+     * @return JsonResponse
+     */
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'managers' => 'required|array|min:1',
+            'managers.*' => 'integer'
+        ]);
+
+         /** @var App\Models\User */
+         $currentUser = auth()->user();
+         User::query()->where('parent_id', $currentUser->id)->where('user_type', 'moderator')->whereIn('id', $request->managers)->delete();
+
+        return response()->success(null, "Managers Deleted Successfully!");
     }
 }

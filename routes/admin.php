@@ -118,6 +118,7 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
 
     // Manager Routes
     Route::apiResource('manager', ManagerController::class);
+    Route::delete('/manager', [ManagerController::class, 'delete']);
 
     // Weather Route
     Route::apiResource('weather', WeatherController::class)->only(['index']);
