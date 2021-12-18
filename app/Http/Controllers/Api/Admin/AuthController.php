@@ -46,11 +46,11 @@ class AuthController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        // $user->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotification();
 
         $token = $user->createToken($request->device_name)->plainTextToken;
         $user->device_token = $request->device_token;
-        $user->email_verified_at = now();
+        // $user->email_verified_at = now();
         $user->save();
 
         $user->refresh();

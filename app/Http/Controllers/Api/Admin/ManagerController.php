@@ -90,6 +90,8 @@ class ManagerController extends Controller
             $user->farms()->attach($farm);
             $user->forceFill(['user_type' => 'moderator'])->save();
 
+            $user->sendEmailVerificationNotification();
+
             return response()->json([
                 'code' => 200,
                 'message' => 'Manager Created Successfully',
