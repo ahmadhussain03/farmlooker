@@ -32,11 +32,11 @@ class FarmController extends Controller
             $search = $request->search;
 
             $farmsQuery
-                ->where('farms.area_of_hector', 'like', '%' . $search . '%')
-                ->orWhere('farms.name', 'like', '%' . $search . '%')
-                ->orWhereHas('city', function($query) use ($search) {
-                    $query->where('name', 'like', '%' . $search . '%');
-                });
+                ->where('farms.area_of_hector', 'like', '%' . $search . '%');
+                // ->orWhere('farms.name', 'like', '%' . $search . '%')
+                // ->orWhereHas('city', function($query) use ($search) {
+                //     $query->where('name', 'like', '%' . $search . '%');
+                // });
         }
 
         if($request->has('sort_field') && $request->has('sort_order')){
