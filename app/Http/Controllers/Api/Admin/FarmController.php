@@ -27,18 +27,6 @@ class FarmController extends Controller
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
-        if($request->has('search')){
-
-            $search = $request->search;
-
-            $farmsQuery
-                ->where('farms.area_of_hector', 'like', '%' . $search . '%');
-                // ->orWhere('farms.name', 'like', '%' . $search . '%')
-                // ->orWhereHas('city', function($query) use ($search) {
-                //     $query->where('name', 'like', '%' . $search . '%');
-                // });
-        }
-
         if($request->has('sort_field') && $request->has('sort_order')){
             $relationArray = explode(".", $request->sort_field);
             if(count($relationArray) > 1){
@@ -52,6 +40,20 @@ class FarmController extends Controller
             } else {
                 $farmsQuery->orderBy($request->sort_field, $request->sort_order);
             }
+        }
+
+        if($request->has('search')){
+
+            $search = $request->search;
+
+            $farmsQuery->where(function($query) use ($search){
+                $query->where('farms.area_of_hector', 'like', '%' . $search . '%')
+                ->orWhere('farms.name', 'like', '%' . $search . '%')
+                ->orWhereHas('city', function($query) use ($search) {
+                    $query->where('name', 'like', '%' . $search . '%');
+                });
+            });
+
         }
 
         $farms = $farmsQuery->paginate($perPage);
