@@ -2,6 +2,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Admin\HerdController;
 use App\Http\Controllers\Api\Admin\AuthController;
 use App\Http\Controllers\Api\Admin\FarmController;
 use App\Http\Controllers\Api\Admin\AssetController;
@@ -30,8 +31,6 @@ use App\Http\Controllers\Api\Admin\OrderFeedExpenseController;
 use App\Http\Controllers\Api\Admin\EmailVerificationController;
 use App\Http\Controllers\Api\Admin\HomeTradingAnimalController;
 use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
-use App\Models\RentalEquipment;
-use App\Models\TradingAnimal;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +66,10 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
 
     // Farm Routes
     Route::apiResource('farm', FarmController::class)->except(['show']);
+
+    // Herd Routes
+    Route::apiResource('herd', HerdController::class);
+    Route::delete('/herd', [HerdController::class, 'delete']);
 
     //  User Detail Routes
     Route::get('/user', [AuthController::class, 'user']);

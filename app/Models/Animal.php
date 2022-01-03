@@ -127,6 +127,11 @@ class Animal extends Model
         return $this->belongsTo(Animal::class, 'female_breeder_id', 'id')->with(['maleParentTree', 'femaleParentTree', 'type', 'breed']);
     }
 
+    public function herd()
+    {
+        return $this->belongsTo(Herd::class);
+    }
+
     /**
      * model life cycle event listeners
      */

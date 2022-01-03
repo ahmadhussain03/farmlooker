@@ -47,6 +47,11 @@ class Farm extends Model
         return $this->belongsTo(City::class);
     }
 
+    public function herds()
+    {
+        return $this->hasMany(Herd::class);
+    }
+
     public function members()
     {
         return $this->belongsToMany(User::class);

@@ -30,7 +30,7 @@ class AnimalController extends Controller
     {
         /** @var App\Models\User */
         $currentUser = auth()->user();
-        $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm', 'type', 'breed']);
+        $animalQuery = $currentUser->animals()->with(['maleParent', 'femaleParent', 'farm', 'type', 'breed', 'herd']);
 
         // if($request->has('client') && $request->client === 'datatable'){
         //     $animalQuery->select(["*", "animals.id as animalId"]);
@@ -104,7 +104,7 @@ class AnimalController extends Controller
         try {
             /** @var App\Models\User */
             $currentUser = auth()->user();
-            $animal = $currentUser->animals()->with(['farm', 'type', 'breed'])->where('animals.id', $animal)->firstOrFail();
+            $animal = $currentUser->animals()->with(['farm', 'type', 'breed', 'herd'])->where('animals.id', $animal)->firstOrFail();
 
             return response()->json([
                 'code' => 200,
@@ -180,7 +180,8 @@ class AnimalController extends Controller
                 'disease' => 'required|in:healthy,sick',
                 'farm_id' => 'required|integer|min:1',
                 'price' => 'nullable|required_if:add_as,purchased|numeric',
-                'previous_owner' => 'required_if:add_as,purchased'
+                'previous_owner' => 'required_if:add_as,purchased',
+                'herd_id' => 'nullable|integer|min:1'
             ]);
 
             /** @var App\Models\User */
@@ -190,8 +191,12 @@ class AnimalController extends Controller
             Type::findOrFail($request->type_id);
             Breed::findOrFail($request->breed_id);
 
+            if($request->has('herd_id') && $request->herd_id !== null){
+                $currentUser->herds()->where('herds.id', $request->herd_id)->firstOrFail();
+            }
+
             $animal = Animal::create($data);
-            $animal->load(['maleParent', 'femaleParent', 'type', 'breed']);
+            $animal->load(['maleParent', 'femaleParent', 'type', 'breed', 'herd']);
             return response()->json([
                 'code' => 200,
                 'message' => 'Animal Created Successfully',
@@ -238,15 +243,20 @@ class AnimalController extends Controller
                 'purchase_date' => 'nullable|date',
                 'disease' => 'in:healthy,sick',
                 'price' => 'numeric',
-                'previous_owner' => 'required_if:add_as,purchased'
+                'previous_owner' => 'required_if:add_as,purchased',
+                'herd_id' => 'nullable|integer|min:1'
             ]);
 
             if($request->farm_id && $request->farm_id != $animal->farm_id){
                 $currentUser->farms()->where('farms.id', $request->farm_id)->firstOrFail();
             }
 
+            if($request->has('herd_id') && $request->herd_id !== null && $request->herd_id !== $animal->herd_id){
+                $currentUser->herds()->where('herds.id', $request->herd_id)->firstOrFail();
+            }
+
             $animal->update($request->all());
-            $animal->load(['maleParent', 'femaleParent']);
+            $animal->load(['maleParent', 'femaleParent', 'herd']);
             return response()->json([
                 'code' => 200,
                 'message' => 'Animal Updated Successfully',
