@@ -18,7 +18,7 @@ class ExpenseController extends Controller
 
          /** @var App\Models\User */
          $currentUser = auth()->user();
-         $expenseQuery = $currentUser->expenses()->with(['farm'])->orderBy('dated', 'desc');
+         $expenseQuery = $currentUser->expenses()->with(['farm']);
          $expenseQuery->select(["expenses.dated", "expenses.expenseable_type", "expenses.farm_id", "expenses.amount", "expenses.id as expenseId", "farms.*"]);
 
         if($request->has('client') && $request->client === 'datatable'){
@@ -56,6 +56,23 @@ class ExpenseController extends Controller
                 ->orWhereHas('farm', function($query) use ($search){
                     $query->where('name', 'like', '%' . $search . '%');
                 });
+        }
+
+        if($request->has('sort_field') && $request->has('sort_order')){
+            $relationArray = explode(".", $request->sort_field);
+            if(count($relationArray) > 1){
+                $relation = $relationArray[0];
+                $field = $relationArray[1];
+                $sortOrder = $request->sort_order;
+
+                $expenseQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                    $query->orderBy($field, $sortOrder);
+                }]);
+            } else {
+                $expenseQuery->orderBy($request->sort_field, $request->sort_order);
+            }
+        } else {
+            $expenseQuery->orderBy('dated', 'desc');
         }
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
