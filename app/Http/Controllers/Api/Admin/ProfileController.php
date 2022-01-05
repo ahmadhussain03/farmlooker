@@ -21,7 +21,7 @@ class ProfileController extends Controller
             "first_name" => "string|max:255",
             "last_name" => "string|max:255",
             "phone_no" => "string|max:20",
-            "experience" => "string",
+            "experience" => "numeric",
             "device_token" => "string|max:255",
             "device_name" => "string|max:255",
             "image" => 'sometimes|mimes:jpeg,jpg,png,bmp'
