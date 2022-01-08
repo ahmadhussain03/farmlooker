@@ -16,7 +16,7 @@ class IncomeController extends Controller
     {
          /** @var App\Models\User */
          $currentUser = auth()->user();
-         $incomeQuery = $currentUser->incomes()->with(['farm'])->orderBy('dated', 'desc');
+         $incomeQuery = $currentUser->incomes()->with(['farm']);
 
          if($request->has('client') && $request->client === 'datatable'){
              $incomeQuery->select(["incomes.dated", "incomes.incomeable_type", "incomes.farm_id", "incomes.amount", "incomes.id as incomeId", "farms.*"]);
@@ -47,6 +47,23 @@ class IncomeController extends Controller
                 ->orWhereHas('farm', function($query) use ($search){
                     $query->where('name', 'like', '%' . $search . '%');
                 });
+        }
+
+        if($request->has('sort_field') && $request->has('sort_order')){
+            $relationArray = explode(".", $request->sort_field);
+            if(count($relationArray) > 1){
+                $relation = $relationArray[0];
+                $field = $relationArray[1];
+                $sortOrder = $request->sort_order;
+
+                $incomeQuery->with([$relation => function($query) use ($field, $sortOrder) {
+                    $query->orderBy($field, $sortOrder);
+                }]);
+            } else {
+                $incomeQuery->orderBy($request->sort_field, $request->sort_order);
+            }
+        } else {
+            $incomeQuery->orderBy('dated', 'desc');
         }
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;

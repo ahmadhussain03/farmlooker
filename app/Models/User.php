@@ -131,6 +131,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getImageAttribute($value)
     {
+        if($value === 'images/default.png'){
+            return asset($value);
+        }
         return asset(Storage::url($value));
     }
 
