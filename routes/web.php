@@ -41,6 +41,4 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin', 'as' => 'admin.'], fu
 
 require __DIR__.'/auth.php';
 
-Route::view('/', 'landing');
-
 Route::any('/{any?}', [SinglePageController::class, 'index'])->where('any', '.*');
