@@ -209,6 +209,32 @@
                     }
                 });
             @endif
+            @if (session()->has('error'))
+                var content = {};
+                content.message = '{{ session()->get("error") }}'
+                var notify = $.notify(content, {
+                    type: 'danger',
+                    allow_dismiss: true,
+                    newest_on_top: true,
+                    mouse_over:  true,
+                    showProgressbar:  false,
+                    spacing: 10,
+                    timer: 5000,
+                    placement: {
+                        from: 'top',
+                        align: 'right'
+                    },
+                    offset: {
+                        x: 30,
+                        y: 30
+                    },
+                    z_index: 1000,
+                    animate: {
+                        enter: 'animate__animated animate__' + 'fadeIn',
+                        exit: 'animate__animated animate__' + 'fadeOut'
+                    }
+                });
+            @endif
         </script>
         @yield('scripts')
 	</body>

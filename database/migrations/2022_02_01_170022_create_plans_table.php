@@ -17,12 +17,15 @@ class CreatePlansTable extends Migration
             $table->id();
 
             $table->string('stripe_id');
-            $table->string('nickname');
+            $table->string('name');
+            $table->text('description');
             $table->string('currency');
             $table->string('interval');
             $table->integer('interval_count');
             $table->string('product');
             $table->double('amount');
+
+            $table->softDeletes();
 
             $table->timestamps();
         });

@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\Admin\OrderFeedExpenseController;
 use App\Http\Controllers\Api\Admin\EmailVerificationController;
 use App\Http\Controllers\Api\Admin\HomeTradingAnimalController;
 use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
+use App\Http\Controllers\Api\Admin\PlanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +64,8 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     // User Subscriptions Routes
     // Route::get('/subscribe/{id}', [SubscriptionController::class, 'show']);
     // Route::get('subscriptions', [SubscriptionController::class, 'index']);
+    // Plans Routes
+    Route::get('plans', [PlanController::class, 'index']);
 
     // Farm Routes
     Route::apiResource('farm', FarmController::class)->except(['show']);

@@ -88,7 +88,7 @@ class AuthController extends Controller
             "device_name" => "required|string|max:255",
         ]);
 
-        $user = User::with(['activeSubscription', 'farms.city.state.country'])->where('email', $request->email)->first();
+        $user = User::with(['farms.city.state.country'])->where('email', $request->email)->first();
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
