@@ -2,25 +2,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\Admin\AuthController;
-use App\Http\Controllers\Api\Admin\FarmController;
-use App\Http\Controllers\Api\Admin\AssetController;
-use App\Http\Controllers\Api\Admin\AnimalController;
-use App\Http\Controllers\Api\Admin\WorkerController;
-use App\Http\Controllers\Api\Admin\ExpenseController;
-use App\Http\Controllers\Api\Admin\SummaryController;
-use App\Http\Controllers\Api\Admin\ManagerController;
-use App\Http\Controllers\Api\Admin\OrderFeedController;
-use App\Http\Controllers\Api\Admin\SubscriptionController;
-use App\Http\Controllers\Api\Admin\NotificationController;
-use App\Http\Controllers\Api\Admin\DiseaseAlertController;
-use App\Http\Controllers\Api\Admin\TradingAnimalController;
-use App\Http\Controllers\Api\Admin\VaccineRecordController;
-use App\Http\Controllers\Api\Admin\RentalEquipmentController;
-use App\Http\Controllers\Api\Admin\HomeTradingAnimalController;
-use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
-use App\Http\Controllers\Api\CountryController;
 use App\Http\Controllers\Api\TypeController;
+use App\Http\Controllers\Api\CountryController;
 
 /*
 |--------------------------------------------------------------------------

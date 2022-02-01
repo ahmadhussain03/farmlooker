@@ -7,6 +7,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SinglePageController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PlanController;
 use App\Models\City;
 use App\Models\TradingAnimal;
 
@@ -34,8 +35,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin', 'as' => 'admin.'], fu
 
     Route::resource('breed', BreedController::class);
 
-    // Route::get('/subscribe/{id}', [SubscriptionController::class, 'show']);
-
+    Route::resource('plan', PlanController::class);
 
 });
 

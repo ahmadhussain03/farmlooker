@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-use App\Notifications\EmailVerification;
+use Str;
+use Storage;
 use App\Traits\Searchable;
+use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Notifications\EmailVerification;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Storage;
-use Str;
 
 /**
  * App\Models\User
@@ -30,7 +31,6 @@ use Str;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $user_type
- * @property-read \App\Models\UserSubscription|null $activeSubscription
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Animal[] $animals
  * @property-read int|null $animals_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Farm[] $farms
@@ -62,7 +62,7 @@ use Str;
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, HasApiTokens, HasRelationships, Searchable;
+    use HasFactory, Notifiable, HasApiTokens, HasRelationships, Searchable, Billable;
     /**
      * The attributes that are mass assignable.
      *
@@ -205,11 +205,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(RentalEquipment::class);
     }
 
-    public function activeSubscription()
-    {
-        return $this->hasOne(UserSubscription::class, 'user_id', 'id')->where('status', 'SUCCESSFULL');
-    }
-
     public function farms()
     {
         return $this->belongsToMany(Farm::class);
@@ -219,4 +214,29 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOneDeep(Farm::class, ['farm_user']);
     }
+
+    protected static function booted()
+    {
+        static::updated(function ($user) {
+            if ($user->hasStripeId()) {
+                $user->syncStripeCustomerDetails();
+            }
+        });
+    }
+
+    public function stripeName()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function stripeEmail()
+    {
+        return $this->email;
+    }
+
+    public function stripePhone()
+    {
+        return $this->phone_no;
+    }
+
 }

@@ -48,6 +48,8 @@ class AuthController extends Controller
 
         $user->sendEmailVerificationNotification();
 
+        $user->createOrGetStripeCustomer();
+
         $token = $user->createToken($request->device_name)->plainTextToken;
         $user->device_token = $request->device_token;
         // $user->email_verified_at = now();
@@ -55,7 +57,7 @@ class AuthController extends Controller
 
         $user->refresh();
 
-        $user->load(['farms.city.state.country', 'activeSubscription']);
+        $user->load(['farms.city.state.country']);
 
         return response()->success(["user" => $user, "token" => $token], "User Register Successfully");
     }
@@ -107,7 +109,7 @@ class AuthController extends Controller
      */
     public function user(): JsonResponse
     {
-        $user = User::with(['activeSubscription', 'farms.city.state.country'])->findOrFail(auth()->id());
+        $user = User::with(['farms.city.state.country'])->findOrFail(auth()->id());
 
         return response()->success($user, null);
     }

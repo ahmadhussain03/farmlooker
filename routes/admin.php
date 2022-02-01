@@ -61,8 +61,8 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     // });
 
     // User Subscriptions Routes
-    Route::get('/subscribe/{id}', [SubscriptionController::class, 'show']);
-    Route::get('subscriptions', [SubscriptionController::class, 'index']);
+    // Route::get('/subscribe/{id}', [SubscriptionController::class, 'show']);
+    // Route::get('subscriptions', [SubscriptionController::class, 'index']);
 
     // Farm Routes
     Route::apiResource('farm', FarmController::class)->except(['show']);

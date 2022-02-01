@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserSubscriptionsTable extends Migration
+class CreatePlansTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,16 @@ class CreateUserSubscriptionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_subscriptions', function (Blueprint $table) {
+        Schema::create('plans', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('subscription_id')->constrained();
-
-            $table->enum('status', ['PENDING', 'PAUSED', 'SUCCESSFULL', 'CANCELLED'])->default('PENDING');
+            $table->string('stripe_id');
+            $table->string('nickname');
+            $table->string('currency');
+            $table->string('interval');
+            $table->integer('interval_count');
+            $table->string('product');
+            $table->double('amount');
 
             $table->timestamps();
         });
@@ -32,6 +35,6 @@ class CreateUserSubscriptionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_subscriptions');
+        Schema::dropIfExists('plans');
     }
 }
