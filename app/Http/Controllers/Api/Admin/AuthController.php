@@ -57,7 +57,9 @@ class AuthController extends Controller
 
         $user->refresh();
 
-        $user->load(['farms.city.state.country']);
+        $user->load(['farms.city.state.country', 'subscriptions' => function($query){
+            $query->active();
+        }, 'subscriptions.plan']);
 
         return response()->success(["user" => $user, "token" => $token], "User Register Successfully");
     }
@@ -88,7 +90,9 @@ class AuthController extends Controller
             "device_name" => "required|string|max:255",
         ]);
 
-        $user = User::with(['farms.city.state.country'])->where('email', $request->email)->first();
+        $user = User::with(['farms.city.state.country', 'subscriptions' => function($query){
+            $query->active();
+        }, 'subscriptions.plan'])->where('email', $request->email)->first();
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
@@ -109,7 +113,9 @@ class AuthController extends Controller
      */
     public function user(): JsonResponse
     {
-        $user = User::with(['farms.city.state.country'])->findOrFail(auth()->id());
+        $user = User::with(['farms.city.state.country', 'subscriptions' => function($query){
+            $query->active();
+        }, 'subscriptions.plan'])->findOrFail(auth()->id());
 
         return response()->success($user, null);
     }

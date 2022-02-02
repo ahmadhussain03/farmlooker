@@ -49,128 +49,131 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
 
-    // Email Verification Routes
-    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])->middleware('throttle:6,1');
-    Route::post('/email/verify', [EmailVerificationController::class, 'verify']);
+        //  User Detail Routes
+        Route::get('/user', [AuthController::class, 'user']);
 
-    // Logout Route
-    Route::post('/logout', [AuthController::class, 'logout']);
+        // Plans Routes
+        Route::get('plans', [PlanController::class, 'index']);
 
-    // Verified Routes
-    // Route::group(['middlware' => 'verified'], function(){
+        // Profile Update Route
+        Route::post('/profile', [ProfileController::class, 'update']);
 
-    // });
+        // Email Verification Routes
+        Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])->middleware('throttle:6,1');
+        Route::post('/email/verify', [EmailVerificationController::class, 'verify']);
 
-    // User Subscriptions Routes
-    // Route::get('/subscribe/{id}', [SubscriptionController::class, 'show']);
-    // Route::get('subscriptions', [SubscriptionController::class, 'index']);
-    // Plans Routes
-    Route::get('plans', [PlanController::class, 'index']);
+        // Logout Route
+        Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Farm Routes
-    Route::apiResource('farm', FarmController::class)->except(['show']);
+        // User Subscriptions Routes
+        Route::put('/subscribe/{id}', [SubscriptionController::class, 'update']);
+        Route::delete('subscribe', [SubscriptionController::class, 'destroy']);
+        Route::post('subscribe/resume', [SubscriptionController::class, 'resume']);
 
-    // Herd Routes
-    Route::apiResource('herd', HerdController::class);
-    Route::delete('/herd', [HerdController::class, 'delete']);
+        Route::get('billing-portal', [SubscriptionController::class, 'billing']);
 
-    //  User Detail Routes
-    Route::get('/user', [AuthController::class, 'user']);
+        Route::group(['middleware' => 'subscribed'], function(){
 
-    // Profile Update Route
-    Route::post('/profile', [ProfileController::class, 'update']);
+            // Farm Routes
+            Route::apiResource('farm', FarmController::class)->except(['show']);
 
-    // User Notification Routes
-    Route::get('notifications', [NotificationController::class, 'index']);
+            // Herd Routes
+            Route::apiResource('herd', HerdController::class);
+            Route::delete('/herd', [HerdController::class, 'delete']);
 
-    // Animal Routes
-    Route::apiResource('animal', AnimalController::class);
-    Route::get('animal/{id}/tree', [AnimalController::class, 'tree']);
-    Route::delete('/animal', [AnimalController::class, 'delete']);
+            // User Notification Routes
+            Route::get('notifications', [NotificationController::class, 'index']);
 
-    // Order Feed Routes
-    Route::apiResource('order_feed', OrderFeedController::class);
+            // Animal Routes
+            Route::apiResource('animal', AnimalController::class);
+            Route::get('animal/{id}/tree', [AnimalController::class, 'tree']);
+            Route::delete('/animal', [AnimalController::class, 'delete']);
 
-    // Rental Equipment Routes
-    Route::apiResource('rental_equipment', RentalEquipmentController::class);
-    Route::delete('rental_equipment', [RentalEquipmentController::class, 'delete']);
+            // Order Feed Routes
+            Route::apiResource('order_feed', OrderFeedController::class);
 
-     // Animal Trading Routes
-     Route::apiResource('trading_animal', TradingAnimalController::class);
-     Route::delete('trading_animal', [TradingAnimalController::class, 'delete']);
+            // Rental Equipment Routes
+            Route::apiResource('rental_equipment', RentalEquipmentController::class);
+            Route::delete('rental_equipment', [RentalEquipmentController::class, 'delete']);
 
-    // Disease Alert Routes
-    Route::apiResource('disease_alert', DiseaseAlertController::class)->except(['update']);
-    Route::delete('disease_alert', [DiseaseAlertController::class, 'delete']);
+            // Animal Trading Routes
+            Route::apiResource('trading_animal', TradingAnimalController::class);
+            Route::delete('trading_animal', [TradingAnimalController::class, 'delete']);
 
-    // Vaccine Record Routes
-    Route::apiResource('vaccine_record', VaccineRecordController::class);
-    Route::delete('vaccine_record', [VaccineRecordController::class, 'delete']);
+            // Disease Alert Routes
+            Route::apiResource('disease_alert', DiseaseAlertController::class)->except(['update']);
+            Route::delete('disease_alert', [DiseaseAlertController::class, 'delete']);
 
-    // Workers Routes
-    Route::apiResource('worker', WorkerController::class);
-    Route::delete('worker', [WorkerController::class, 'delete']);
+            // Vaccine Record Routes
+            Route::apiResource('vaccine_record', VaccineRecordController::class);
+            Route::delete('vaccine_record', [VaccineRecordController::class, 'delete']);
 
-    // Assets Routes
-    Route::apiResource('asset', AssetController::class);
-    Route::delete('asset', [AssetController::class, 'delete']);
+            // Workers Routes
+            Route::apiResource('worker', WorkerController::class);
+            Route::delete('worker', [WorkerController::class, 'delete']);
 
-    // Summary Routes
-    Route::get('/summary', [SummaryController::class, 'index']);
-    Route::get('/summary/{type}', [SummaryController::class, 'show']);
+            // Assets Routes
+            Route::apiResource('asset', AssetController::class);
+            Route::delete('asset', [AssetController::class, 'delete']);
 
-    // Purchased Animals List
-    Route::get('expense', [ExpenseController::class, 'index']);
+            // Summary Routes
+            Route::get('/summary', [SummaryController::class, 'index']);
+            Route::get('/summary/{type}', [SummaryController::class, 'show']);
 
-    // Manager Routes
-    Route::apiResource('manager', ManagerController::class);
-    Route::delete('/manager', [ManagerController::class, 'delete']);
+            // Purchased Animals List
+            Route::get('expense', [ExpenseController::class, 'index']);
 
-    // Weather Route
-    Route::apiResource('weather', WeatherController::class)->only(['index']);
+            // Manager Routes
+            Route::apiResource('manager', ManagerController::class);
+            Route::delete('/manager', [ManagerController::class, 'delete']);
 
-    // Salary Route
-    Route::apiResource('salary', SalaryController::class)->only(['store']);
+            // Weather Route
+            Route::apiResource('weather', WeatherController::class)->only(['index']);
 
-    // Order Feed Expense Route
-    Route::apiResource('order_feed_expense', OrderFeedExpenseController::class)->only(['store']);
+            // Salary Route
+            Route::apiResource('salary', SalaryController::class)->only(['store']);
 
-    // Miscelleneous Route
-    Route::apiResource('miscelleneous', MiscelleneousController::class)->only(['store']);
+            // Order Feed Expense Route
+            Route::apiResource('order_feed_expense', OrderFeedExpenseController::class)->only(['store']);
 
-    // Animal Sold Route
-    Route::apiResource('animal_sold', AnimalSoldController::class)->only(['store']);
+            // Miscelleneous Route
+            Route::apiResource('miscelleneous', MiscelleneousController::class)->only(['store']);
 
-    // Other Income Route
-    Route::apiResource('other_income', OtherIncomeController::class)->only(['store']);
+            // Animal Sold Route
+            Route::apiResource('animal_sold', AnimalSoldController::class)->only(['store']);
 
-    // Income Routes
-    Route::apiResource('income', IncomeController::class)->only(['index']);
+            // Other Income Route
+            Route::apiResource('other_income', OtherIncomeController::class)->only(['store']);
 
-    // Expense Routes
-    Route::apiResource('expense', ExpenseController::class)->only(['index']);
+            // Income Routes
+            Route::apiResource('income', IncomeController::class)->only(['index']);
 
-    // Home Routes
-    Route::prefix('home')->group(function () {
-        // All Rental Equipment Route
-        Route::get('rental_equipment', [HomeRentalEquipmentController::class, 'index']);
+            // Expense Routes
+            Route::apiResource('expense', ExpenseController::class)->only(['index']);
 
-        // All Trading Animal Route
-        Route::get('trading_animal', [HomeTradingAnimalController::class, 'index']);
+            // Home Routes
+            Route::prefix('home')->group(function () {
+                // All Rental Equipment Route
+                Route::get('rental_equipment', [HomeRentalEquipmentController::class, 'index']);
 
-        // Total Expense
-        Route::get('expense/total', [ExpenseController::class, 'show']);
+                // All Trading Animal Route
+                Route::get('trading_animal', [HomeTradingAnimalController::class, 'index']);
 
-        // Total Expense Summary
-        Route::get('expense/summary', [ExpenseController::class, 'summary']);
+                // Total Expense
+                Route::get('expense/total', [ExpenseController::class, 'show']);
 
-        // Expense Chart
-        Route::get('expense_chart', [ExpenseChartController::class, 'index']);
+                // Total Expense Summary
+                Route::get('expense/summary', [ExpenseController::class, 'summary']);
 
-        // Total Income Summary
-        Route::get('income/summary', [IncomeController::class, 'summary']);
+                // Expense Chart
+                Route::get('expense_chart', [ExpenseChartController::class, 'index']);
 
-        // Income Chart
-        Route::get('income_chart', [IncomeChartController::class, 'index']);
-    });
+                // Total Income Summary
+                Route::get('income/summary', [IncomeController::class, 'summary']);
+
+                // Income Chart
+                Route::get('income_chart', [IncomeChartController::class, 'index']);
+            });
+        });
+
 });

@@ -41,4 +41,4 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin', 'as' => 'admin.'], fu
 
 require __DIR__.'/auth.php';
 
-Route::any('/{any?}', [SinglePageController::class, 'index'])->where('any', '.*');
+Route::any('/{any?}', [SinglePageController::class, 'index'])->where('any', '.*')->name('spa');

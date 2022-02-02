@@ -26,7 +26,9 @@ class EmailVerificationController extends Controller
 
         /** @var App\Models\User */
         $currentUser = auth()->user();
-        $currentUser->load(['farms']);
+        $currentUser->load(['farms.city.state.country', 'subscriptions' => function($query){
+            $query->active();
+        }, 'subscriptions.plan']);
 
         $verificationCodeExists = $currentUser->verificationCode()->where('code', $request->code)->first();
 
