@@ -17,7 +17,7 @@ class Subscribed
     public function handle(Request $request, Closure $next)
     {
         if ($request->user() && ! $request->user()->subscribed('default')) {
-            abort(403);
+            abort(402);
         }
 
         return $next($request);

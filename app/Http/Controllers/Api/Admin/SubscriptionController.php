@@ -7,6 +7,8 @@ use App\Models\Subscription;
 use Illuminate\Http\Request;
 use App\Models\UserSubscription;
 use App\Http\Controllers\Controller;
+use Exception;
+use Laravel\Cashier\Exceptions\IncompletePayment;
 
 class SubscriptionController extends Controller
 {
@@ -27,9 +29,15 @@ class SubscriptionController extends Controller
         /** @var App\Models\User */
         $user = auth()->user();
 
-        $user->newSubscription(
-            'default', $plan->stripe_id
-        )->create($request->payment_method);
+        try {
+            $user->newSubscription(
+                'default', $plan->stripe_id
+            )->create($request->payment_method);
+        } catch(IncompletePayment $exception){
+            return response()->error(['url' => route('cashier.payment', [$exception->payment->id, 'redirect' => route(('spa'))])], $exception->getMessage(), 402);
+        } catch(Exception $exception){
+            return response()->error(null, $exception->getMessage(), 400);
+        }
 
         $user->load(['farms.city.state.country', 'subscriptions' => function($query){
             $query->active();

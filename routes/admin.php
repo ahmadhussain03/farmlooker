@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\Admin\OrderFeedExpenseController;
 use App\Http\Controllers\Api\Admin\EmailVerificationController;
 use App\Http\Controllers\Api\Admin\HomeTradingAnimalController;
 use App\Http\Controllers\Api\Admin\HomeRentalEquipmentController;
+use App\Http\Controllers\Api\Admin\PaymentMethodController;
 use App\Http\Controllers\Api\Admin\PlanController;
 
 /*
@@ -71,6 +72,9 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
         Route::post('subscribe/resume', [SubscriptionController::class, 'resume']);
 
         Route::get('billing-portal', [SubscriptionController::class, 'billing']);
+
+        // User Payment Methods Routes
+        Route::get('payment_method', [PaymentMethodController::class, 'index']);
 
         Route::group(['middleware' => 'subscribed'], function(){
 
