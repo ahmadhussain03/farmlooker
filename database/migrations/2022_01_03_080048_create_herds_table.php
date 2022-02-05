@@ -31,8 +31,8 @@ class CreateHerdsTable extends Migration
      */
     public function down()
     {
-        Schema::enableForeignKeyConstraints();
-        Schema::dropIfExists('herds');
         Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('herds');
+        Schema::enableForeignKeyConstraints();
     }
 }
