@@ -72,7 +72,8 @@ class FarmController extends Controller
         $data = $this->validate($request, [
             'name' => 'required|string|max:255',
             'area_of_hector' => 'required|numeric',
-            'city_id' => 'required|integer|min:1'
+            'city_id' => 'required|integer|min:1',
+            'geometry' => 'required|json'
         ]);
 
         City::findOrFail($request->city_id);
@@ -104,7 +105,8 @@ class FarmController extends Controller
         $data = $this->validate($request, [
             'name' => 'string|max:255',
             'area_of_hector' => 'numeric|numeric',
-            'city_id' => 'integer|min:1'
+            'city_id' => 'integer|min:1',
+            'geometry' => 'json'
         ]);
 
         if($request->city_id){
