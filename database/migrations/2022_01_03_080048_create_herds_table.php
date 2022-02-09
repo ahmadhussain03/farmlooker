@@ -32,6 +32,9 @@ class CreateHerdsTable extends Migration
     public function down()
     {
         Schema::disableForeignKeyConstraints();
+        Schema::table('herds', function($table){
+            $table->dropForeign(['farm_id']);
+        });
         Schema::dropIfExists('herds');
         Schema::enableForeignKeyConstraints();
     }
