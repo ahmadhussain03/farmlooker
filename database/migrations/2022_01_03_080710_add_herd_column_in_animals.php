@@ -25,6 +25,8 @@ class AddHerdColumnInAnimals extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('animals', function (Blueprint $table) {
+            $table->dropForeign(['herd_id']);
+        });
     }
 }

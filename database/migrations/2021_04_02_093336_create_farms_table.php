@@ -32,6 +32,9 @@ class CreateFarmsTable extends Migration
      */
     public function down()
     {
+        Schema::disableForeignKeyConstraints();
+        DB::raw('DROP TABLE if exists farms cascade');
         Schema::dropIfExists('farms');
+        Schema::enableForeignKeyConstraints();
     }
 }
