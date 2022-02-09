@@ -13,9 +13,9 @@ class AddHerdColumnInAnimals extends Migration
      */
     public function up()
     {
-        // Schema::table('animals', function (Blueprint $table) {
-        //     $table->foreignId('herd_id')->nullable()->constrained()->nullOnDelete();
-        // });
+        Schema::table('animals', function (Blueprint $table) {
+            $table->foreignId('herd_id')->nullable()->constrained()->nullOnDelete();
+        });
     }
 
     /**
