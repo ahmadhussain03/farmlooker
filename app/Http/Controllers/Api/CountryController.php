@@ -17,7 +17,8 @@ class CountryController extends Controller
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
         if($request->has('search')){
-            $countriesQuery->where('name', 'like', '%' . $request->search . '%');
+            $search = strtolower($request->search);
+            $countriesQuery->whereRaw('lower(name) like (?)',["%{$search}%"]);
         }
 
         if($request->has('all')){
@@ -36,7 +37,8 @@ class CountryController extends Controller
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
         if($request->has('search')){
-            $statesQuery->where('name', 'like', '%' . $request->search . '%');
+            $search = strtolower($request->search);
+            $statesQuery->whereRaw('lower(name) like (?)',["%{$search}%"]);
         }
 
         if($request->has('all')){
@@ -56,7 +58,8 @@ class CountryController extends Controller
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
         if($request->has('search')){
-            $citiesQuery->where('name', 'like', '%' . $request->search . '%');
+            $search = strtolower($request->search);
+            $citiesQuery->whereRaw('lower(name) like (?)',["%{$search}%"]);
         }
 
         if($request->has('all')){
