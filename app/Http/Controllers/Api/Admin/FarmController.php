@@ -73,7 +73,8 @@ class FarmController extends Controller
             'name' => 'required|string|max:255',
             'area_of_hector' => 'required|numeric',
             'city_id' => 'required|integer|min:1',
-            'geometry' => 'required|json'
+            'geometry' => 'required|json',
+            'centroid' => 'required'
         ]);
 
         City::findOrFail($request->city_id);
@@ -106,7 +107,8 @@ class FarmController extends Controller
             'name' => 'string|max:255',
             'area_of_hector' => 'numeric|numeric',
             'city_id' => 'integer|min:1',
-            'geometry' => 'json'
+            'geometry' => 'json',
+            'centroid' => 'string'
         ]);
 
         if($request->city_id){
