@@ -66,6 +66,7 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
 
     // Farm Routes
     Route::apiResource('farm', FarmController::class)->except(['show']);
+    Route::get('farm/{id}/city', [FarmController::class, 'city']);
 
     // Herd Routes
     Route::apiResource('herd', HerdController::class);

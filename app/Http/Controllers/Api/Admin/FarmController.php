@@ -134,4 +134,25 @@ class FarmController extends Controller
 
         return response()->success(null, "Farm Deleted Successfully!");
     }
+
+    /**
+     * Get All Farms in a city
+     *
+     * @param Request $request
+     * @param int $id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function city(Request $request, $id)
+    {
+        $perPage = $request->has('limit') ? intval($request->limit) : 10;
+
+        $authUser = User::findOrFail(auth()->id());
+
+        $farmsQuery = $authUser->farms()->where('farms.city_id', $id);
+
+        $farms = $farmsQuery->paginate($perPage);
+
+        return response()->success($farms);
+    }
 }
