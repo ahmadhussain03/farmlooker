@@ -23,7 +23,7 @@ class FarmController extends Controller
 
         $authUser = User::findOrFail(auth()->id());
 
-        $farmsQuery = $authUser->farms()->with(['city']);
+        $farmsQuery = $authUser->farms()->with(['city.state.country']);
 
         $perPage = $request->has('limit') ? intval($request->limit) : 10;
 
