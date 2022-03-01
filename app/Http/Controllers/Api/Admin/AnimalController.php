@@ -246,7 +246,7 @@ class AnimalController extends Controller
             }
 
             $animal->update($request->all());
-            $animal->load(['maleParent', 'femaleParent']);
+            $animal->load(['maleParent', 'femaleParent', 'type', 'breed']);
             return response()->json([
                 'code' => 200,
                 'message' => 'Animal Updated Successfully',

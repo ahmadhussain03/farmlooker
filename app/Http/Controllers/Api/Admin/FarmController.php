@@ -83,6 +83,8 @@ class FarmController extends Controller
 
         $farm = Farm::create($data);
 
+        $farm->load('city.state.country');
+
         $user->farms()->attach($farm);
 
         return response()->success($farm);
@@ -116,6 +118,8 @@ class FarmController extends Controller
         }
 
         $farm->update($data);
+
+        $farm->load('city.state.country');
 
         return response()->success($farm);
     }
