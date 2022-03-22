@@ -65,7 +65,7 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     Route::get('subscriptions', [SubscriptionController::class, 'index']);
 
     // Farm Routes
-    Route::apiResource('farm', FarmController::class)->except(['show']);
+    Route::apiResource('farm', FarmController::class);
     Route::get('farm/{id}/city', [FarmController::class, 'city']);
 
     // Herd Routes
