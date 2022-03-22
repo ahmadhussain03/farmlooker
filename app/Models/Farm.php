@@ -81,4 +81,9 @@ class Farm extends Model
     {
         return $this->hasMany(Expense::class);
     }
+
+    public function farmInfos()
+    {
+        return $this->hasMany(FarmInfo::class);
+    }
 }

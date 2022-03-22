@@ -31,6 +31,9 @@ class CreateHerdsTable extends Migration
      */
     public function down()
     {
+        Schema::table('herds', function(Blueprint $table){
+            $table->dropForeign(['farm_id']);
+        });
         Schema::dropIfExists('herds');
     }
 }

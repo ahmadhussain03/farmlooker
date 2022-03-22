@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Exceptions\Forbidden;
 use App\Http\Controllers\Controller;
 use App\Models\City;
+use App\Models\FarmInfo;
 
 class FarmController extends Controller
 {
@@ -61,6 +62,29 @@ class FarmController extends Controller
         return response()->success($farms);
     }
 
+
+    /**
+     * Get Detail of Specific Farm
+     *
+     * @param int $farm
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request, $farm)
+    {
+        $farm = Farm::findOrFail($farm);
+
+        if(!$farm->admin()->where('users.id', auth()->id())->exists()){
+            throw new Forbidden();
+        }
+
+        $perPage = $request->has('limit') ? intval($request->limit) : 10;
+
+        $farm_info = FarmInfo::where('farm_id', $farm->id)->orderBy('created_at', 'desc')->paginate($perPage);
+
+        return response()->json($farm_info);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -80,6 +104,19 @@ class FarmController extends Controller
         $user = User::findOrFail(auth()->id());
 
         $farm = Farm::create($data);
+
+        // $farm->farmInfos()->create([
+        //     't_min' => 10,
+        //     't_max' => 100,
+        //     'wind_speed' => 20,
+        //     'cloud_cover' => 30,
+        //     'humidity' => 20,
+        //     'rainfall' => 0,
+        //     'msavi' => 22,
+        //     'ndre' => 30,
+        //     'recl' => 5,
+        //     'ndvi' => 8,
+        // ]);
 
         $user->farms()->attach($farm);
 
