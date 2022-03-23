@@ -8,7 +8,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SinglePageController;
 use App\Http\Controllers\NotificationController;
 use App\Models\City;
+use App\Models\Farm;
 use App\Models\TradingAnimal;
+use Illuminate\Support\Facades\Http;
+use RakibDevs\Weather\Weather;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +23,16 @@ use App\Models\TradingAnimal;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('test', function(){
+    $farm = Farm::first();
+    dd($farm->geometry['geometry']);
+    $result = Http::post(config('services.node-server.url') . 'ee/msavi', [
+        'geometry' => $farm->geometry
+    ])->throw();
+
+    dd($result->json());
+});
 
 Route::get('subscription/success', [PaymentController::class, 'success'])->name('subscription.success');
 Route::get('subscription/cancel', [PaymentController::class, 'cancel'])->name('subscription.cancel');
@@ -42,3 +55,4 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin', 'as' => 'admin.'], fu
 require __DIR__.'/auth.php';
 
 Route::any('/{any?}', [SinglePageController::class, 'index'])->where('any', '.*');
+

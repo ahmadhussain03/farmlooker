@@ -42,6 +42,10 @@ class Farm extends Model
 
     protected $hidden = ['pivot'];
 
+    protected $casts = [
+        'geometry' => 'json'
+    ];
+
     public function city()
     {
         return $this->belongsTo(City::class);

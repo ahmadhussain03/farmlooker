@@ -31,5 +31,8 @@ return [
     ],
     "open_weather" => [
         "key" => env("OPEN_WEATHER_API_KEY", "ba67fea7a45299774578ac82b444e2d6")
+    ],
+    'node-server' => [
+        'url' => env('NODE_SERVER', 'http://localhost:8081/')
     ]
 ];
