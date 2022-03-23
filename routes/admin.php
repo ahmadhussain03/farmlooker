@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\Admin\SummaryController;
 use App\Http\Controllers\Api\Admin\WeatherController;
 use App\Http\Controllers\Api\Admin\OrderFeedController;
 use App\Http\Controllers\Api\Admin\AnimalSoldController;
+use App\Http\Controllers\Api\Admin\DeviceController;
 use App\Http\Controllers\Api\Admin\IncomeChartController;
 use App\Http\Controllers\Api\Admin\OtherIncomeController;
 use App\Http\Controllers\Api\Admin\DiseaseAlertController;
@@ -112,6 +113,9 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     // Assets Routes
     Route::apiResource('asset', AssetController::class);
     Route::delete('asset', [AssetController::class, 'delete']);
+
+    // Devices Routes
+    Route::apiResource('device', DeviceController::class)->only(['index']);
 
     // Summary Routes
     Route::get('/summary', [SummaryController::class, 'index']);
