@@ -22,10 +22,10 @@ class CreateFarmInfosTable extends Migration
             $table->string('cloud_cover');
             $table->string('humidity');
             $table->string('rainfall');
-            $table->string('msavi');
-            $table->string('ndre');
-            $table->string('recl');
-            $table->string('ndvi');
+            $table->text('msavi');
+            $table->text('ndre');
+            $table->text('recl');
+            $table->text('ndvi');
 
             $table->foreignId('farm_id')->constrained()->cascadeOnDelete();
             $table->timestamps();

@@ -1,17 +1,19 @@
 <?php
 
+use App\Models\City;
+use App\Models\Farm;
+use App\Models\TradingAnimal;
+use RakibDevs\Weather\Weather;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\BreedController;
 use App\Http\Controllers\PaymentController;
+use Http\Client\Exception\RequestException;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SinglePageController;
 use App\Http\Controllers\NotificationController;
-use App\Models\City;
-use App\Models\Farm;
-use App\Models\TradingAnimal;
-use Illuminate\Support\Facades\Http;
-use RakibDevs\Weather\Weather;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,12 +28,11 @@ use RakibDevs\Weather\Weather;
 
 Route::get('test', function(){
     $farm = Farm::first();
-    dd($farm->geometry['geometry']);
-    $result = Http::post(config('services.node-server.url') . 'ee/msavi', [
-        'geometry' => $farm->geometry
-    ])->throw();
+    $result = Http::asForm()->post(config('services.node-server.url') . 'ee/recl', [
+        'geometry' => json_encode($farm->geometry['geometry']['coordinates'])
+    ])->throw()->json();
 
-    dd($result->json());
+    dd($result);
 });
 
 Route::get('subscription/success', [PaymentController::class, 'success'])->name('subscription.success');

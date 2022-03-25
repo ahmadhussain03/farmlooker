@@ -36,5 +36,8 @@ return [
         'url' => env('SIGFOX_URL', 'https://api.sigfox.com/v2/'),
         'username' => env('SIGFOX_USERNAME', ''),
         'password' => env('SIGFOX_PASSWORD', '')
+    ],
+    'node-server' => [
+        'url' => env('NODE_SERVER', 'http://localhost:8081/')
     ]
 ];
