@@ -42,9 +42,9 @@ class Farm extends Model
 
     protected $hidden = ['pivot'];
 
-    protected $casts = [
-        'geometry' => 'json'
-    ];
+    // protected $casts = [
+    //     'geometry' => 'json'
+    // ];
 
     public function city()
     {
