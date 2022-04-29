@@ -115,7 +115,7 @@ Route::group(['middleware' => ['auth:sanctum', 'admin']], function(){
     Route::delete('asset', [AssetController::class, 'delete']);
 
     // Devices Routes
-    Route::apiResource('device', DeviceController::class)->only(['index']);
+    Route::apiResource('device', DeviceController::class)->only(['index', 'show']);
 
     // Summary Routes
     Route::get('/summary', [SummaryController::class, 'index']);

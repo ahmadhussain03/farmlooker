@@ -19,4 +19,16 @@ class DeviceController extends Controller
 
         return response()->json($result->json());
     }
+
+    /**
+     * Get Data for a specific device
+     *
+     * @param string $device
+     * @return Response
+     */
+    public function show($device)
+    {
+        $result = Http::withBasicAuth(config('services.sigfox.username'), config('services.sigfox.password'))->get( config('services.sigfox.url') . 'devices/' . $device . '/messages')->throw();
+        return response()->json($result->json());
+    }
 }
